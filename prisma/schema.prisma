@@ -1,1 +1,37 @@
- 
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model MeetUp {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime     @default(now())
+  createdBy   String
+  responses   Response[]
+  timeSlots   TimeSlot[]
+  expiresAt   DateTime?
+}
+
+model TimeSlot {
+  id        String     @id @default(cuid())
+  meetUpId  String
+  meetUp    MeetUp     @relation(fields: [meetUpId], references: [id])
+  startTime DateTime
+  endTime   DateTime
+  responses Response[]
+}
+
+model Response {
+  id         String    @id @default(cuid())
+  meetUpId   String
+  meetUp     MeetUp    @relation(fields: [meetUpId], references: [id])
+  name       String
+  timeSlots  TimeSlot[]
+  createdAt  DateTime  @default(now())
+} 
