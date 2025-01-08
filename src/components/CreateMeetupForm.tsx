@@ -2,19 +2,24 @@
 
 import { useState } from 'react'
 import { DateRangePicker } from './DateRangePicker'
+import { TimeRangeSelector } from './TimeRangeSelector'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
+import type { DateRange } from 'react-day-picker'
 
 export default function CreateMeetupForm() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null])
+  const [dateRange, setDateRange] = useState<DateRange | undefined>()
+  const [startTime, setStartTime] = useState('09:00')
+  const [endTime, setEndTime] = useState('17:00')
   const [loading, setLoading] = useState(false)
+  const [timeError, setTimeError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!dateRange[0] || !dateRange[1]) return
+    if (!dateRange?.from || !dateRange?.to) return
 
     setLoading(true)
     try {
@@ -24,8 +29,10 @@ export default function CreateMeetupForm() {
         body: JSON.stringify({
           title,
           description,
-          startDate: dateRange[0],
-          endDate: dateRange[1],
+          startDate: dateRange.from,
+          endDate: dateRange.to,
+          startTime,
+          endTime,
         }),
       })
 
@@ -46,47 +53,86 @@ export default function CreateMeetupForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label htmlFor="title" className="block text-sm font-medium">
-          Meetup Title
+          Meetup Title <span className="text-red-500">*</span>
+          <span className="text-gray-500 text-xs ml-1">(required)</span>
         </label>
         <input
           type="text"
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           required
+          placeholder="Enter meetup title"
         />
       </div>
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium">
-          Description (Optional)
+          Description
+          <span className="text-gray-500 text-xs ml-1">(optional)</span>
         </label>
         <textarea
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           rows={3}
+          placeholder="Add a description for your meetup"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-2">
-          Select Date Range
+          Select Date Range <span className="text-red-500">*</span>
+          <span className="text-gray-500 text-xs ml-1">(required)</span>
         </label>
         <DateRangePicker
           value={dateRange}
           onChange={setDateRange}
         />
+        {!dateRange?.from && !dateRange?.to && (
+          <p className="mt-1 text-sm text-gray-500">Please select start and end dates</p>
+        )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-2">
+          Select Time Range <span className="text-red-500">*</span>
+          <span className="text-gray-500 text-xs ml-1">(required)</span>
+        </label>
+        <TimeRangeSelector
+          startTime={startTime}
+          endTime={endTime}
+          onStartTimeChange={setStartTime}
+          onEndTimeChange={setEndTime}
+          onValidationError={setTimeError}
+        />
+        {timeError && (
+          <p className="mt-1 text-sm text-red-600">{timeError}</p>
+        )}
+      </div>
+
+      <div className="text-sm text-gray-500 mt-4">
+        <p>Fields marked with <span className="text-red-500">*</span> are required</p>
       </div>
 
       <button
         type="submit"
-        disabled={loading || !title || !dateRange[0] || !dateRange[1]}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+        disabled={loading || !title || !dateRange?.from || !dateRange?.to || !!timeError}
+        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
       >
-        {loading ? 'Creating...' : 'Create Meetup'}
+        {loading ? (
+          <span className="flex items-center justify-center">
+            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Creating...
+          </span>
+        ) : (
+          'Create Meetup'
+        )}
       </button>
     </form>
   )
