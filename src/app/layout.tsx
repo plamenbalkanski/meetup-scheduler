@@ -9,6 +9,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          async
+          defer
+          data-website-id="YOUR-WEBSITE-ID"
+          src="https://your-umami-app.onrender.com/script.js"
+        />
+      </head>
       <body>
         <ErrorBoundary>
           {children}

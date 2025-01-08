@@ -6,7 +6,7 @@ import { CreatorMeetupEmail } from '../../../emails/CreatorMeetupEmail'
 
 // Validate environment variables
 if (!process.env.NEXT_PUBLIC_APP_URL) {
-  console.error('NEXT_PUBLIC_APP_URL environment variable is not set')
+  console.warn('NEXT_PUBLIC_APP_URL environment variable is not set, using fallback URL')
 }
 
 if (!process.env.RESEND_API_KEY) {
@@ -80,9 +80,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Failed to create meetup:', error)
     return NextResponse.json(
-      { 
-        error: error instanceof Error ? error.message : 'Failed to create meetup'
-      },
+      { error: 'Failed to create meetup' },
       { status: 500 }
     )
   }
