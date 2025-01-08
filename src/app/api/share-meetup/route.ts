@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import { checkRateLimit } from '@/lib/rateLimit'
-import { prisma } from '@/lib/prisma'
+import { checkRateLimit } from '../../../lib/rateLimit'
+import { prisma } from '../../../lib/prisma'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
