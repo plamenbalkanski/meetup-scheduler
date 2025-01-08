@@ -26,15 +26,19 @@ export default function ShareMeetup({ meetupId }: { meetupId: string }) {
         body: JSON.stringify({ email, meetupUrl, meetupId }),
       })
       
-      if (response.ok) {
+      const data = await response.json()
+      
+      if (response.status === 429) {
+        toast.error('Too many emails sent. Please try again later.')
+      } else if (response.ok) {
         toast.success('Invitation sent!')
         setEmail('')
         setShowEmailForm(false)
       } else {
-        throw new Error('Failed to send email')
+        throw new Error(data.error || 'Failed to send email')
       }
     } catch (error) {
-      toast.error('Failed to send invitation')
+      toast.error(error instanceof Error ? error.message : 'Failed to send invitation')
     } finally {
       setSending(false)
     }
