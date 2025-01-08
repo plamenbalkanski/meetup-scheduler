@@ -1,4 +1,4 @@
-import CreateMeetupForm from '@/components/CreateMeetupForm'
+import CreateMeetupForm from '../components/CreateMeetupForm'
 
 export default function Home() {
   return (

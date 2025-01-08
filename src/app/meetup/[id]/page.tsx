@@ -1,8 +1,8 @@
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
-import AvailabilitySelector from '@/components/AvailabilitySelector'
-import ShareMeetup from '@/components/ShareMeetup'
-import ResultsView from '@/components/ResultsView'
+import { prisma } from '../../../lib/prisma'
+import AvailabilitySelector from '../../../components/AvailabilitySelector'
+import ShareMeetup from '../../../components/ShareMeetup'
+import ResultsView from '../../../components/ResultsView'
 import { Suspense } from 'react'
 
 export default async function MeetupPage({
