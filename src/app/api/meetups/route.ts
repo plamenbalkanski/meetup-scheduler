@@ -4,6 +4,9 @@ import { resend } from '../../../lib/resend'
 import { render } from '@react-email/render'
 import { CreatorMeetupEmail } from '../../../emails/CreatorMeetupEmail'
 
+// Update this to use your verified domain
+const FROM_EMAIL = 'plamen@balkanski.net' // Replace with your verified domain
+
 export async function POST(request: Request) {
   try {
     const { title, description, creatorEmail, startDate, endDate, startTime, endTime } = await request.json()
@@ -23,7 +26,7 @@ export async function POST(request: Request) {
 
     // Send email to creator using the new template
     await resend.emails.send({
-      from: 'Meetup Scheduler <onboarding@resend.dev>',
+      from: FROM_EMAIL, // Using the verified domain email
       to: creatorEmail,
       subject: `Your Meetup: ${title}`,
       html: render(CreatorMeetupEmail({
