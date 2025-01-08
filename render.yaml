@@ -2,7 +2,11 @@ services:
   - type: web
     name: meetup-scheduler
     env: node
-    buildCommand: npm install && npx prisma generate && npm run build
+    buildCommand: >
+      npm install && 
+      npm install typescript @types/react @types/node @types/react-dom && 
+      npx prisma generate && 
+      npm run build
     startCommand: npm start
     envVars:
       - key: DATABASE_URL
