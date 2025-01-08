@@ -28,9 +28,10 @@ export const MeetupInvite = ({ meetupUrl, meetupTitle }: MeetupInviteProps) => (
         </Text>
         <Section style={buttonContainer}>
           <Button
-            pX={20}
-            pY={12}
-            style={button}
+            style={{
+              ...button,
+              padding: '12px 20px'
+            }}
             href={meetupUrl}
           >
             Select Your Availability
