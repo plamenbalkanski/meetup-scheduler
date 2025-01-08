@@ -1,12 +1,12 @@
 'use client'
 
-import { DayPicker, DayPickerSingleProps, DayPickerRangeProps, DayPickerMultipleProps } from 'react-day-picker'
+import { DayPicker, DayPickerSingleProps, DayPickerRangeProps, DayPickerMultipleProps, DateRange } from 'react-day-picker'
 import 'react-day-picker/dist/style.css'
 
 type CalendarProps = {
   mode?: 'single' | 'range' | 'multiple'
-  selected?: Date | Date[] | [Date | null, Date | null]
-  onSelect?: (date: Date | Date[] | [Date | null, Date | null] | undefined) => void
+  selected?: Date | Date[] | DateRange | undefined
+  onSelect?: (date: Date | Date[] | DateRange | undefined) => void
 }
 
 export function Calendar({ mode = 'single', selected, onSelect }: CalendarProps) {
@@ -22,7 +22,7 @@ export function Calendar({ mode = 'single', selected, onSelect }: CalendarProps)
       case 'range':
         return {
           mode,
-          selected: selected as [Date | null, Date | null],
+          selected: selected as DateRange,
           onSelect: onSelect as DayPickerRangeProps['onSelect']
         }
       case 'multiple':
@@ -30,6 +30,12 @@ export function Calendar({ mode = 'single', selected, onSelect }: CalendarProps)
           mode,
           selected: selected as Date[],
           onSelect: onSelect as DayPickerMultipleProps['onSelect']
+        }
+      default:
+        return {
+          mode: 'single' as const,
+          selected: selected as Date,
+          onSelect: onSelect as DayPickerSingleProps['onSelect']
         }
     }
   }
