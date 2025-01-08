@@ -1,4 +1,4 @@
-import { RateLimiterMemory } from 'rate-limiter-flexible'
+import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible'
 
 // Hourly rate limiter
 const hourlyLimiter = new RateLimiterMemory({
@@ -12,17 +12,22 @@ const dailyLimiter = new RateLimiterMemory({
   duration: 86400, // 24 hours in seconds
 })
 
-// Combined rate limiter function
+interface RateLimitError {
+  msBeforeNext: number
+}
+
 export async function checkRateLimit(email: string) {
   try {
-    // Check both limits
     await Promise.all([
       hourlyLimiter.consume(email),
       dailyLimiter.consume(email)
     ])
     return { success: true }
   } catch (error) {
-    const isHourlyLimit = error.msBeforeNext < 3600000 // 1 hour in milliseconds
+    // Type guard to check if error has msBeforeNext property
+    const rateLimitError = error as RateLimiterRes
+    const isHourlyLimit = rateLimitError.msBeforeNext < 3600000 // 1 hour in milliseconds
+    
     return {
       success: false,
       error: isHourlyLimit
