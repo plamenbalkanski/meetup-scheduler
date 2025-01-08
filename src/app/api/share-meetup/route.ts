@@ -53,9 +53,7 @@ export async function POST(request: Request) {
           </p>
         </div>
       `,
-      tags: [{ name: 'meetupId', value: meetupId }],
-      track_opens: true,
-      track_clicks: true
+      tags: [{ name: 'meetupId', value: meetupId }]
     })
 
     return NextResponse.json({ 
