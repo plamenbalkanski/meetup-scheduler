@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       data: {
         title,
         description,
-        createdBy: 'anonymous', // Replace with actual user when auth is added
+        createdBy: 'anonymous',
         timeSlots: {
           create: generateTimeSlots(new Date(startDate), new Date(endDate))
         }
@@ -31,7 +31,6 @@ function generateTimeSlots(startDate: Date, endDate: Date) {
   const currentDate = new Date(startDate)
   
   while (currentDate <= endDate) {
-    // Create slots for 9 AM to 5 PM
     for (let hour = 9; hour < 17; hour++) {
       slots.push({
         startTime: new Date(new Date(currentDate).setHours(hour, 0, 0)),

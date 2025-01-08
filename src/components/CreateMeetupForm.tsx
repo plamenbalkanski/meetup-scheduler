@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { DateRangePicker } from './DateRangePicker'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-hot-toast'
 
 export default function CreateMeetupForm() {
   const router = useRouter()
@@ -13,8 +14,9 @@ export default function CreateMeetupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    if (!dateRange[0] || !dateRange[1]) return
 
+    setLoading(true)
     try {
       const response = await fetch('/api/meetups', {
         method: 'POST',
@@ -28,9 +30,13 @@ export default function CreateMeetupForm() {
       })
 
       const data = await response.json()
+      if (!response.ok) throw new Error(data.error)
+      
       router.push(`/meetup/${data.id}`)
+      toast.success('Meetup created successfully!')
     } catch (error) {
-      console.error('Error creating meetup:', error)
+      toast.error('Failed to create meetup')
+      console.error('Error:', error)
     } finally {
       setLoading(false)
     }
@@ -77,7 +83,7 @@ export default function CreateMeetupForm() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || !title || !dateRange[0] || !dateRange[1]}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
       >
         {loading ? 'Creating...' : 'Create Meetup'}
