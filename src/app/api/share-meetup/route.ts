@@ -13,7 +13,10 @@ export async function POST(request: Request) {
     const rateLimitCheck = await checkRateLimit(email)
     if (!rateLimitCheck.success) {
       return NextResponse.json(
-        { error: rateLimitCheck.error },
+        { 
+          error: rateLimitCheck.error,
+          remaining: rateLimitCheck.remaining 
+        },
         { status: 429 }
       )
     }
@@ -58,7 +61,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       success: true,
-      messageId: emailData?.id 
+      messageId: emailData?.id,
+      remaining: rateLimitCheck.remaining
     })
   } catch (error) {
     console.error('Failed to send email:', error)

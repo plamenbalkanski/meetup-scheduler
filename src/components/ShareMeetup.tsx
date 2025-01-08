@@ -7,6 +7,7 @@ export default function ShareMeetup({ meetupId }: { meetupId: string }) {
   const [showEmailForm, setShowEmailForm] = useState(false)
   const [email, setEmail] = useState('')
   const [sending, setSending] = useState(false)
+  const [remaining, setRemaining] = useState<{ hourly: number; daily: number } | null>(null)
 
   const meetupUrl = `${window.location.origin}/meetup/${meetupId}`
 
@@ -29,9 +30,11 @@ export default function ShareMeetup({ meetupId }: { meetupId: string }) {
       const data = await response.json()
       
       if (response.status === 429) {
-        toast.error('Too many emails sent. Please try again later.')
+        toast.error(data.error)
+        setRemaining(data.remaining)
       } else if (response.ok) {
         toast.success('Invitation sent!')
+        setRemaining(data.remaining)
         setEmail('')
         setShowEmailForm(false)
       } else {
@@ -82,6 +85,12 @@ export default function ShareMeetup({ meetupId }: { meetupId: string }) {
             {sending ? 'Sending...' : 'Send Invitation'}
           </button>
         </form>
+      )}
+
+      {remaining && (
+        <div className="mt-2 text-sm text-gray-600">
+          Remaining attempts: {remaining.hourly} this hour / {remaining.daily} today
+        </div>
       )}
     </div>
   )

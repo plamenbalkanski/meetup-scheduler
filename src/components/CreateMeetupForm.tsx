@@ -11,6 +11,7 @@ export default function CreateMeetupForm() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [creatorEmail, setCreatorEmail] = useState('')
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('17:00')
@@ -29,6 +30,7 @@ export default function CreateMeetupForm() {
         body: JSON.stringify({
           title,
           description,
+          creatorEmail,
           startDate: dateRange.from,
           endDate: dateRange.to,
           startTime,
@@ -40,7 +42,7 @@ export default function CreateMeetupForm() {
       if (!response.ok) throw new Error(data.error)
       
       router.push(`/meetup/${data.id}`)
-      toast.success('Meetup created successfully!')
+      toast.success('Meetup created! Check your email for the details.')
     } catch (error) {
       toast.error('Failed to create meetup')
       console.error('Error:', error)
@@ -79,6 +81,22 @@ export default function CreateMeetupForm() {
           className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           rows={3}
           placeholder="Add a description for your meetup"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="creatorEmail" className="block text-sm font-medium">
+          Your Email <span className="text-red-500">*</span>
+          <span className="text-gray-500 text-xs ml-1">(required)</span>
+        </label>
+        <input
+          type="email"
+          id="creatorEmail"
+          value={creatorEmail}
+          onChange={(e) => setCreatorEmail(e.target.value)}
+          placeholder="We'll send you the meetup details"
+          className="mt-1 w-full px-3 py-2 border rounded-md"
+          required
         />
       </div>
 
