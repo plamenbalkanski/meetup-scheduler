@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { checkRateLimit } from '@/lib/rateLimit'
 import { prisma } from '@/lib/prisma'
-import { render } from '@react-email/render'
-import { MeetupInvite } from '@/emails/MeetupInvite'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -33,19 +31,28 @@ export async function POST(request: Request) {
       )
     }
 
-    // Send email with tracking
-    const emailHtml = render(
-      MeetupInvite({
-        meetupUrl,
-        meetupTitle: meetup.title
-      })
-    )
-
+    // Send email
     const { data: emailData } = await resend.emails.send({
       from: 'Meetup Scheduler <onboarding@resend.dev>',
       to: email,
       subject: `Availability Request: ${meetup.title}`,
-      html: emailHtml,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #2563eb;">Meeting Availability Request</h1>
+          <p>You've been invited to select your availability for: ${meetup.title}</p>
+          <p>Click the button below to select your available times:</p>
+          <a 
+            href="${meetupUrl}"
+            style="display: inline-block; background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 16px 0;"
+          >
+            Select Your Availability
+          </a>
+          <p style="color: #666;">
+            Or copy this link: <br/>
+            <a href="${meetupUrl}">${meetupUrl}</a>
+          </p>
+        </div>
+      `,
       tags: [{ name: 'meetupId', value: meetupId }],
       track_opens: true,
       track_clicks: true
