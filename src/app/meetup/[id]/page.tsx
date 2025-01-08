@@ -1,9 +1,11 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { prisma } from '../../../lib/prisma'
 import AvailabilitySelector from '../../../components/AvailabilitySelector'
 import ShareMeetup from '../../../components/ShareMeetup'
 import ResultsView from '../../../components/ResultsView'
 import { Suspense } from 'react'
+import { ArrowLeft } from 'lucide-react'
 
 export default async function MeetupPage({
   params: { id }
@@ -32,6 +34,13 @@ export default async function MeetupPage({
     return (
       <main className="p-8 max-w-4xl mx-auto">
         <div className="mb-8">
+          <Link 
+            href="/" 
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
           <h1 className="text-3xl font-bold mb-2">{meetup.title}</h1>
           {meetup.description && (
             <p className="text-gray-600">{meetup.description}</p>
