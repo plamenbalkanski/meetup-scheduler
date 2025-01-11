@@ -1,6 +1,6 @@
 'use client'
 
-import CreateMeetupForm from '../components/CreateMeetupForm'
+import { CreateMeetupForm } from '../components/CreateMeetupForm'
 import { CalendarDays, Share, CheckCircle } from 'lucide-react'
 
 export default function Home() {
