@@ -212,21 +212,33 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateTimeSlots(startDate: Date, endDate: Date, startTime: string, endTime: string) {
+function generateTimeSlots(startDate: Date, endDate: Date, startTime?: string, endTime?: string) {
   const slots = []
   const currentDate = new Date(startDate)
   
-  const [startHour] = startTime.split(':').map(Number)
-  const [endHour] = endTime.split(':').map(Number)
-  
-  while (currentDate <= endDate) {
-    for (let hour = startHour; hour < endHour; hour++) {
-      slots.push({
-        startTime: new Date(new Date(currentDate).setHours(hour, 0, 0)),
-        endTime: new Date(new Date(currentDate).setHours(hour + 1, 0, 0))
-      })
+  if (startTime && endTime) {
+    // Existing time slots logic for specific hours
+    const [startHour] = startTime.split(':').map(Number)
+    const [endHour] = endTime.split(':').map(Number)
+    
+    while (currentDate <= endDate) {
+      for (let hour = startHour; hour < endHour; hour++) {
+        slots.push({
+          startTime: new Date(new Date(currentDate).setHours(hour, 0, 0)),
+          endTime: new Date(new Date(currentDate).setHours(hour + 1, 0, 0))
+        })
+      }
+      currentDate.setDate(currentDate.getDate() + 1)
     }
-    currentDate.setDate(currentDate.getDate() + 1)
+  } else {
+    // Full day slots
+    while (currentDate <= endDate) {
+      slots.push({
+        startTime: new Date(new Date(currentDate).setHours(0, 0, 0)),
+        endTime: new Date(new Date(currentDate).setHours(23, 59, 59))
+      })
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
   }
   
   return slots

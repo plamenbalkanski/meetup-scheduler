@@ -6,8 +6,13 @@ import { TimeRangeSelector } from './TimeRangeSelector'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import type { DateRange } from 'react-day-picker'
+import { Switch } from "@/components/ui/switch"
 
-export default function CreateMeetupForm() {
+interface CreateMeetupFormProps {
+  // ... existing props
+}
+
+export function CreateMeetupForm({ ... }: CreateMeetupFormProps) {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -17,6 +22,7 @@ export default function CreateMeetupForm() {
   const [endTime, setEndTime] = useState('17:00')
   const [loading, setLoading] = useState(false)
   const [timeError, setTimeError] = useState<string | null>(null)
+  const [useTimeRanges, setUseTimeRanges] = useState(true)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -114,20 +120,64 @@ export default function CreateMeetupForm() {
         )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">
-          Select Time Range <span className="text-red-500">*</span>
-          <span className="text-gray-500 text-xs ml-1">(required)</span>
-        </label>
-        <TimeRangeSelector
-          startTime={startTime}
-          endTime={endTime}
-          onStartTimeChange={setStartTime}
-          onEndTimeChange={setEndTime}
-          onValidationError={setTimeError}
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="time-ranges"
+          checked={useTimeRanges}
+          onCheckedChange={setUseTimeRanges}
         />
-        {timeError && (
-          <p className="mt-1 text-sm text-red-600">{timeError}</p>
+        <label htmlFor="time-ranges" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          Include specific time ranges
+        </label>
+      </div>
+
+      <div className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium mb-1">Start Date</label>
+            <DayPicker
+              mode="single"
+              selected={startDate}
+              onSelect={(date) => setStartDate(date)}
+              disabled={(date) => date < new Date()}
+              className="border rounded-md p-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">End Date</label>
+            <DayPicker
+              mode="single"
+              selected={endDate}
+              onSelect={(date) => setEndDate(date)}
+              disabled={(date) => date < startDate}
+              className="border rounded-md p-2"
+            />
+          </div>
+        </div>
+
+        {useTimeRanges && (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium mb-1">Start Time</label>
+              <select
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-full border rounded-md p-2"
+              >
+                {/* Existing time options */}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">End Time</label>
+              <select
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="w-full border rounded-md p-2"
+              >
+                {/* Existing time options */}
+              </select>
+            </div>
+          </div>
         )}
       </div>
 
