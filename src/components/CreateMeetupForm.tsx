@@ -131,7 +131,6 @@ export function CreateMeetupForm() {
       {useTimeRanges && (
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium mb-1">Start Time</label>
             <TimeRangeSelector
               startTime={startTime}
               endTime={endTime}
