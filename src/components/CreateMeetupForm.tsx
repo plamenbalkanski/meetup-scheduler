@@ -6,6 +6,7 @@ import { TimeRangeSelector } from './TimeRangeSelector'
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-hot-toast'
 import type { DateRange } from 'react-day-picker'
+import { DayPicker } from 'react-day-picker'
 import { Switch } from "@/components/ui/switch"
 
 export function CreateMeetupForm() {
@@ -127,55 +128,20 @@ export function CreateMeetupForm() {
         </label>
       </div>
 
-      <div className="space-y-4">
+      {useTimeRanges && (
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium mb-1">Start Date</label>
-            <DayPicker
-              mode="single"
-              selected={startDate}
-              onSelect={(date) => setStartDate(date)}
-              disabled={(date) => date < new Date()}
-              className="border rounded-md p-2"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">End Date</label>
-            <DayPicker
-              mode="single"
-              selected={endDate}
-              onSelect={(date) => setEndDate(date)}
-              disabled={(date) => date < startDate}
-              className="border rounded-md p-2"
+            <label className="block text-sm font-medium mb-1">Start Time</label>
+            <TimeRangeSelector
+              startTime={startTime}
+              endTime={endTime}
+              onStartTimeChange={setStartTime}
+              onEndTimeChange={setEndTime}
+              onValidationError={setTimeError}
             />
           </div>
         </div>
-
-        {useTimeRanges && (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="block text-sm font-medium mb-1">Start Time</label>
-              <select
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full border rounded-md p-2"
-              >
-                {/* Existing time options */}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">End Time</label>
-              <select
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="w-full border rounded-md p-2"
-              >
-                {/* Existing time options */}
-              </select>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
 
       <div className="text-sm text-gray-500 mt-4">
         <p>Fields marked with <span className="text-red-500">*</span> are required</p>
