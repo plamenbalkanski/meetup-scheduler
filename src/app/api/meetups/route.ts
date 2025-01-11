@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '../../../lib/prisma'
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
 import { resend } from '../../../lib/resend'
 import { render } from '@react-email/render'
 import { CreatorMeetupEmail } from '../../../emails/CreatorMeetupEmail'
@@ -30,9 +30,122 @@ if (!isValidUrl(APP_URL)) {
   console.error(`Invalid APP_URL format: ${APP_URL}`)
 }
 
-export async function POST(request: Request) {
+const MONTHLY_LIMIT = 3;
+
+async function checkRateLimit(email: string, ip: string) {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+
+  // Check email limit
+  const emailLimit = await prisma.rateLimit.findUnique({
+    where: {
+      identifier_type_month_year: {
+        identifier: email,
+        type: 'email',
+        month: currentMonth,
+        year: currentYear,
+      },
+    },
+  });
+
+  if (emailLimit && emailLimit.count >= MONTHLY_LIMIT) {
+    return { limited: true, message: 'Monthly limit exceeded for this email address' };
+  }
+
+  // Check IP limit
+  const ipLimit = await prisma.rateLimit.findUnique({
+    where: {
+      identifier_type_month_year: {
+        identifier: ip,
+        type: 'ip',
+        month: currentMonth,
+        year: currentYear,
+      },
+    },
+  });
+
+  if (ipLimit && ipLimit.count >= MONTHLY_LIMIT) {
+    return { limited: true, message: 'Monthly limit exceeded for this IP address' };
+  }
+
+  return { limited: false };
+}
+
+async function updateRateLimits(email: string, ip: string) {
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+
+  // Update email rate limit
+  await prisma.rateLimit.upsert({
+    where: {
+      identifier_type_month_year: {
+        identifier: email,
+        type: 'email',
+        month: currentMonth,
+        year: currentYear,
+      },
+    },
+    update: {
+      count: { increment: 1 },
+    },
+    create: {
+      identifier: email,
+      type: 'email',
+      month: currentMonth,
+      year: currentYear,
+      count: 1,
+    },
+  });
+
+  // Update IP rate limit
+  await prisma.rateLimit.upsert({
+    where: {
+      identifier_type_month_year: {
+        identifier: ip,
+        type: 'ip',
+        month: currentMonth,
+        year: currentYear,
+      },
+    },
+    update: {
+      count: { increment: 1 },
+    },
+    create: {
+      identifier: ip,
+      type: 'ip',
+      month: currentMonth,
+      year: currentYear,
+      count: 1,
+    },
+  });
+}
+
+export async function POST(request: NextRequest) {
   try {
-    const { title, description, creatorEmail, startDate, endDate, startTime, endTime } = await request.json()
+    const data = await request.json();
+    const { email } = data;
+    
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email is required' },
+        { status: 400 }
+      );
+    }
+
+    const ip = request.ip || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    
+    // Check rate limits
+    const rateLimitCheck = await checkRateLimit(email, ip);
+    if (rateLimitCheck.limited) {
+      return NextResponse.json(
+        { error: rateLimitCheck.message },
+        { status: 429 }
+      );
+    }
+
+    const { title, description, creatorEmail, startDate, endDate, startTime, endTime } = data;
 
     // Validate required environment variables at runtime
     if (!process.env.RESEND_API_KEY) {
@@ -75,6 +188,9 @@ export async function POST(request: Request) {
         warning: 'Meetup created but failed to send email notification'
       })
     }
+
+    // Update rate limits after successful creation
+    await updateRateLimits(email, ip);
 
     return NextResponse.json(meetup)
   } catch (error) {
