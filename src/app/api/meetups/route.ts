@@ -125,7 +125,7 @@ async function updateRateLimits(email: string, ip: string) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    const { email } = data;
+    const { title, description, creatorEmail: email, startDate, endDate, startTime, endTime } = data;
     
     if (!email) {
       return NextResponse.json(
@@ -136,69 +136,79 @@ export async function POST(request: NextRequest) {
 
     const ip = request.ip || request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
     
+    console.log('Checking rate limits for:', { email, ip });
+    
     // Check rate limits
     const rateLimitCheck = await checkRateLimit(email, ip);
     if (rateLimitCheck.limited) {
+      console.log('Rate limit exceeded:', rateLimitCheck.message);
       return NextResponse.json(
         { error: rateLimitCheck.message },
         { status: 429 }
       );
     }
 
-    const { title, description, creatorEmail, startDate, endDate, startTime, endTime } = data;
-
-    // Validate required environment variables at runtime
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error('Email service is not configured')
-    }
-
-    if (!isValidUrl(APP_URL)) {
-      throw new Error('Invalid application URL configuration')
-    }
+    console.log('Creating meetup with data:', {
+      title,
+      description,
+      email,
+      startDate,
+      endDate,
+      startTime,
+      endTime
+    });
 
     const meetup = await prisma.meetUp.create({
       data: {
         title,
         description,
-        createdBy: creatorEmail,
+        createdBy: email,
         timeSlots: {
           create: generateTimeSlots(new Date(startDate), new Date(endDate), startTime, endTime)
         }
       }
-    })
+    });
 
-    const meetupUrl = `${APP_URL}/meetup/${meetup.id}`
+    console.log('Meetup created successfully:', meetup.id);
+
+    const meetupUrl = `${APP_URL}/meetup/${meetup.id}`;
 
     try {
       // Send email to creator using the new template
       await resend.emails.send({
         from: FROM_EMAIL,
-        to: creatorEmail,
+        to: email,
         subject: `Your Meetup: ${title}`,
         html: render(CreatorMeetupEmail({
           meetupUrl,
           meetupTitle: title
         }))
-      })
+      });
+      console.log('Email sent successfully');
     } catch (emailError) {
-      console.error('Failed to send email:', emailError)
-      // Continue execution but notify the user
+      console.error('Failed to send email:', emailError);
       return NextResponse.json({
         ...meetup,
         warning: 'Meetup created but failed to send email notification'
-      })
+      });
     }
 
     // Update rate limits after successful creation
+    console.log('Updating rate limits');
     await updateRateLimits(email, ip);
+    console.log('Rate limits updated successfully');
 
-    return NextResponse.json(meetup)
+    return NextResponse.json(meetup);
   } catch (error) {
-    console.error('Failed to create meetup:', error)
+    console.error('Failed to create meetup:', error);
+    // Return more detailed error information in development
     return NextResponse.json(
-      { error: 'Failed to create meetup' },
+      { 
+        error: 'Failed to create meetup',
+        details: process.env.NODE_ENV === 'development' ? error : undefined
+      },
       { status: 500 }
-    )
+    );
   }
 }
 
