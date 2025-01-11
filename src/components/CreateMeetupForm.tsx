@@ -8,11 +8,7 @@ import { toast } from 'react-hot-toast'
 import type { DateRange } from 'react-day-picker'
 import { Switch } from "@/components/ui/switch"
 
-interface CreateMeetupFormProps {
-  // ... existing props
-}
-
-export function CreateMeetupForm({ ... }: CreateMeetupFormProps) {
+export function CreateMeetupForm() {
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
