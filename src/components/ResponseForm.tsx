@@ -58,6 +58,50 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
     setSelectedSlots(newSelected)
   }
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const response = await fetch('/api/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          meetupId,
+          name,
+          selectedTimeSlots: Array.from(selectedSlots)
+        }),
+      })
+
+      // Add timeout handling
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timed out')), 30000)
+      )
+      
+      const data = await Promise.race([
+        response.json(),
+        timeoutPromise
+      ])
+
+      if (!response.ok) throw new Error(data.error)
+      
+      toast.success('Response submitted successfully!')
+      // Optional: redirect or clear form
+      setSelectedSlots(new Set())
+      setName('')
+    } catch (error: any) {
+      if (error.message === 'Request timed out') {
+        toast.error('Server is taking longer than usual. Please try again.')
+      } else {
+        toast.error('Failed to submit response')
+      }
+      console.error('Error:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
