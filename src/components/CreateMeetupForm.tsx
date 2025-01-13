@@ -43,13 +43,13 @@ export function CreateMeetupForm() {
       })
 
       const data = await response.json()
+      console.log('Response:', { status: response.status, data })
       
       if (!response.ok) {
         if (response.status === 429 && data.upgradeInfo) {
-          // Show upgrade modal/toast
           toast((t) => (
             <div className="flex flex-col gap-2">
-              <p>{data.error}</p>
+              <p className="font-medium">{data.error}</p>
               <p className="text-sm text-gray-600">
                 Upgrade to Pro for unlimited meetups!
               </p>
@@ -58,23 +58,26 @@ export function CreateMeetupForm() {
                   toast.dismiss(t.id)
                   router.push(data.upgradeInfo.upgradeUrl)
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm font-medium"
               >
                 Upgrade Now
               </button>
             </div>
           ), {
-            duration: 5000,
+            duration: 8000,
+            style: {
+              minWidth: '300px',
+            },
           })
           return
         }
-        throw new Error(data.error)
+        throw new Error(data.error || 'Failed to create meetup')
       }
       
       router.push(`/meetup/${data.id}`)
       toast.success('Meetup created! Check your email for the details.')
-    } catch (error) {
-      toast.error('Failed to create meetup')
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to create meetup')
       console.error('Error:', error)
     } finally {
       setLoading(false)

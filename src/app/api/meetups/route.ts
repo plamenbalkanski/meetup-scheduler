@@ -161,7 +161,10 @@ export async function POST(request: NextRequest) {
     if (rateLimitCheck.limited) {
       console.log('Rate limit exceeded:', rateLimitCheck.message);
       return NextResponse.json(
-        { error: rateLimitCheck.message },
+        { 
+          error: rateLimitCheck.message,
+          upgradeInfo: rateLimitCheck.upgradeInfo
+        },
         { status: 429 }
       );
     }
