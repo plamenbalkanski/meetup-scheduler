@@ -1,3 +1,8 @@
+'use client'
+
+import { useState } from 'react'
+import { toast } from 'react-hot-toast'
+
 export function ResponseForm() {
   const [loading, setLoading] = useState(false)
   
@@ -22,7 +27,7 @@ export function ResponseForm() {
       
       if (!response.ok) throw new Error(data.error)
       // ... rest of success handling
-    } catch (error) {
+    } catch (error: any) {
       if (error.message === 'Request timed out') {
         toast.error('Server is taking longer than usual. Please try again.')
       } else {
@@ -35,7 +40,7 @@ export function ResponseForm() {
   }
   
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       {/* ... your form fields ... */}
       <button
         type="submit"
