@@ -31,10 +31,10 @@ export async function POST(request: NextRequest) {
     
     console.log(`Response processed in ${performance.now() - startTime}ms`);
     return NextResponse.json(newResponse);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Detailed error:', {
-      message: error.message,
-      stack: error.stack,
+      message: error?.message || 'Unknown error',
+      stack: error?.stack,
       time: new Date().toISOString()
     });
     return NextResponse.json(
