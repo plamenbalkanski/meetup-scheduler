@@ -36,8 +36,9 @@ export function CreateMeetupForm() {
           creatorEmail,
           startDate: dateRange.from,
           endDate: dateRange.to,
-          startTime,
-          endTime,
+          startTime: useTimeRanges ? startTime : undefined,
+          endTime: useTimeRanges ? endTime : undefined,
+          useTimeRanges,
         }),
       })
 

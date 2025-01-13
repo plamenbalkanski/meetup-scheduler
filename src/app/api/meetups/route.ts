@@ -125,7 +125,7 @@ async function updateRateLimits(email: string, ip: string) {
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    const { title, description, creatorEmail: email, startDate, endDate, startTime, endTime } = data;
+    const { title, description, creatorEmail: email, startDate, endDate, startTime, endTime, useTimeRanges } = data;
     
     if (!email) {
       return NextResponse.json(
@@ -163,8 +163,9 @@ export async function POST(request: NextRequest) {
         title,
         description,
         createdBy: email,
+        useTimeRanges: useTimeRanges ?? true,
         timeSlots: {
-          create: generateTimeSlots(new Date(startDate), new Date(endDate), startTime, endTime)
+          create: generateTimeSlots(new Date(startDate), new Date(endDate), useTimeRanges ? startTime : undefined, useTimeRanges ? endTime : undefined)
         }
       }
     });

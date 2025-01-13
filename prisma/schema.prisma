@@ -16,6 +16,7 @@ model MeetUp {
   responses   Response[]
   timeSlots   TimeSlot[]
   expiresAt   DateTime?
+  useTimeRanges Boolean    @default(true)
 }
 
 model TimeSlot {
