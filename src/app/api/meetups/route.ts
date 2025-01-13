@@ -50,7 +50,16 @@ async function checkRateLimit(email: string, ip: string) {
   });
 
   if (emailLimit && emailLimit.count >= MONTHLY_LIMIT) {
-    return { limited: true, message: 'Monthly limit exceeded for this email address' };
+    return { 
+      limited: true, 
+      message: 'You have reached your monthly limit for free meetups',
+      upgradeInfo: {
+        currentPlan: 'free',
+        currentLimit: MONTHLY_LIMIT,
+        proLimit: 'unlimited',
+        upgradeUrl: '/upgrade'
+      }
+    };
   }
 
   // Check IP limit
@@ -66,7 +75,16 @@ async function checkRateLimit(email: string, ip: string) {
   });
 
   if (ipLimit && ipLimit.count >= MONTHLY_LIMIT) {
-    return { limited: true, message: 'Monthly limit exceeded for this IP address' };
+    return { 
+      limited: true, 
+      message: 'You have reached your monthly limit for free meetups',
+      upgradeInfo: {
+        currentPlan: 'free',
+        currentLimit: MONTHLY_LIMIT,
+        proLimit: 'unlimited',
+        upgradeUrl: '/upgrade'
+      }
+    };
   }
 
   return { limited: false };
@@ -155,7 +173,8 @@ export async function POST(request: NextRequest) {
       startDate,
       endDate,
       startTime,
-      endTime
+      endTime,
+      useTimeRanges
     });
 
     const meetup = await prisma.meetUp.create({
@@ -165,12 +184,24 @@ export async function POST(request: NextRequest) {
         createdBy: email,
         useTimeRanges: useTimeRanges ?? true,
         timeSlots: {
-          create: generateTimeSlots(new Date(startDate), new Date(endDate), useTimeRanges ? startTime : undefined, useTimeRanges ? endTime : undefined)
+          create: generateTimeSlots(
+            new Date(startDate), 
+            new Date(endDate), 
+            useTimeRanges ? startTime : undefined, 
+            useTimeRanges ? endTime : undefined
+          )
         }
+      },
+      include: {
+        timeSlots: true
       }
     });
 
-    console.log('Meetup created successfully:', meetup.id);
+    console.log('Created meetup:', {
+      id: meetup.id,
+      slotCount: meetup.timeSlots.length,
+      useTimeRanges: meetup.useTimeRanges
+    });
 
     const meetupUrl = `${APP_URL}/meetup/${meetup.id}`;
 
@@ -217,30 +248,35 @@ function generateTimeSlots(startDate: Date, endDate: Date, startTime?: string, e
   const slots = []
   const currentDate = new Date(startDate)
   
-  if (startTime && endTime) {
-    // Existing time slots logic for specific hours
-    const [startHour] = startTime.split(':').map(Number)
-    const [endHour] = endTime.split(':').map(Number)
-    
-    while (currentDate <= endDate) {
+  // Make sure we're working with clean dates (no time component for comparison)
+  const endDateClean = new Date(endDate)
+  endDateClean.setHours(23, 59, 59, 999)
+  
+  while (currentDate <= endDateClean) {
+    if (startTime && endTime) {
+      // Time slots for specific hours
+      const [startHour] = startTime.split(':').map(Number)
+      const [endHour] = endTime.split(':').map(Number)
+      
       for (let hour = startHour; hour < endHour; hour++) {
         slots.push({
           startTime: new Date(new Date(currentDate).setHours(hour, 0, 0)),
           endTime: new Date(new Date(currentDate).setHours(hour + 1, 0, 0))
         })
       }
-      currentDate.setDate(currentDate.getDate() + 1)
-    }
-  } else {
-    // Full day slots
-    while (currentDate <= endDate) {
+    } else {
+      // Full day slots
+      const slotDate = new Date(currentDate)
       slots.push({
-        startTime: new Date(new Date(currentDate).setHours(0, 0, 0)),
-        endTime: new Date(new Date(currentDate).setHours(23, 59, 59))
+        startTime: new Date(slotDate.setHours(0, 0, 0, 0)),
+        endTime: new Date(slotDate.setHours(23, 59, 59, 999))
       })
-      currentDate.setDate(currentDate.getDate() + 1)
     }
+    
+    // Move to next day
+    currentDate.setDate(currentDate.getDate() + 1)
   }
   
+  console.log('Generated slots:', slots.length, 'useTimeRanges:', !!startTime)
   return slots
 } 
