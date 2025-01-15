@@ -219,12 +219,12 @@ export async function POST(request: NextRequest) {
         from: FROM_EMAIL,
         to: email,
         subject: `Your Meetup: ${title}`,
-        html: render(CreatorMeetupEmail({
+        react: CreatorMeetupEmail({
           meetupUrl,
           meetupTitle: title,
           usageCount: emailLimit?.count || 0,
           monthlyLimit: MONTHLY_LIMIT
-        }))
+        })
       });
       console.log('Email sent successfully');
     } catch (emailError) {
