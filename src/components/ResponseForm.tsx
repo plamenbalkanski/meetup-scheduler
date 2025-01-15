@@ -39,13 +39,19 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
   const formatSlot = (slot: TimeSlot) => {
     const date = new Date(slot.startTime)
     if (!meetup?.useTimeRanges) {
-      return date.toLocaleDateString('en-US', { 
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric'
-      })
+      return {
+        date: date.toLocaleDateString('en-US', { 
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric'
+        }),
+        time: 'Select Day'
+      }
     }
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: 'numeric' })}`
+    return {
+      date: date.toLocaleDateString(),
+      time: date.toLocaleTimeString([], { hour: 'numeric' })
+    }
   }
 
   const toggleSlot = (slotId: string) => {
@@ -130,10 +136,8 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
                 : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'
             }`}
           >
-            <div className="font-medium">{formatSlot(slot)}</div>
-            {!meetup.useTimeRanges && (
-              <div className="text-sm text-gray-500 mt-1">Select Day</div>
-            )}
+            <div className="font-medium">{formatSlot(slot).date}</div>
+            <div className="text-sm text-gray-500 mt-1">{formatSlot(slot).time}</div>
           </button>
         ))}
       </div>
