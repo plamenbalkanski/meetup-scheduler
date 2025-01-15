@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { resend } from '../../../lib/resend'
 import { render } from '@react-email/render'
-import { CreatorMeetupEmail } from '../../../emails/CreatorMeetupEmail'
+import { CreatorMeetupEmail } from '@/emails/CreatorMeetupEmail'
 
 // Validate environment variables
 if (!process.env.NEXT_PUBLIC_APP_URL) {
@@ -214,24 +214,26 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      // Send email to creator using the new template
+      const emailContent = CreatorMeetupEmail({
+        meetupUrl,
+        meetupTitle: title,
+        usageCount: emailLimit?.count || 0,
+        monthlyLimit: MONTHLY_LIMIT
+      })
+
+      console.log('Email content:', {
+        react: emailContent,
+        html: render(emailContent)
+      });
+
       await resend.emails.send({
         from: FROM_EMAIL,
         to: email,
         subject: `Your Meetup: ${title}`,
-        react: CreatorMeetupEmail({
-          meetupUrl,
-          meetupTitle: title,
-          usageCount: emailLimit?.count || 0,
-          monthlyLimit: MONTHLY_LIMIT
-        }),
-        html: render(CreatorMeetupEmail({
-          meetupUrl,
-          meetupTitle: title,
-          usageCount: emailLimit?.count || 0,
-          monthlyLimit: MONTHLY_LIMIT
-        }))
+        react: emailContent,
+        html: render(emailContent)
       });
+
       console.log('Email sent successfully');
     } catch (emailError) {
       console.error('Failed to send email:', emailError);
