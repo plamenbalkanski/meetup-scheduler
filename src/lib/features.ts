@@ -1,15 +1,15 @@
 export const FEATURES = {
-  TIME_RANGES: 'time_ranges',
-  CUSTOM_DURATION: 'custom_duration',
-  MULTIPLE_DATES: 'multiple_dates',
+  UNLIMITED_MEETUPS: 'unlimited_meetups',
+  EMAIL_INVITES: 'email_invites',
+  NO_ADS: 'no_ads',
 } as const;
 
 type FeatureId = typeof FEATURES[keyof typeof FEATURES];
 type Plan = 'free' | 'pro';
 
 const PLAN_FEATURES: Record<Plan, FeatureId[]> = {
-  free: [FEATURES.MULTIPLE_DATES],
-  pro: [FEATURES.TIME_RANGES, FEATURES.CUSTOM_DURATION, FEATURES.MULTIPLE_DATES],
+  free: [],
+  pro: [FEATURES.UNLIMITED_MEETUPS, FEATURES.EMAIL_INVITES, FEATURES.NO_ADS],
 };
 
 export function isFeatureEnabled(featureId: FeatureId, plan: Plan = 'free'): boolean {
