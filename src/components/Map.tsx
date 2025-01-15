@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { FEATURES } from '@/lib/features'
+import type { GeocoderResult, GeocoderStatus } from '@types/google.maps'
 
 declare global {
   interface Window {
@@ -47,8 +48,8 @@ export function Map({ address, className = "" }: MapProps) {
     geocoder.geocode(
       { address },
       (
-        results: google.maps.GeocoderResult[] | null,
-        status: google.maps.GeocoderStatus
+        results: GeocoderResult[] | null,
+        status: GeocoderStatus
       ) => {
         if (status === 'OK' && results?.[0]) {
           const map = new window.google.maps.Map(mapRef.current!, {
