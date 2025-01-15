@@ -218,7 +218,12 @@ export async function POST(request: NextRequest) {
         meetupUrl,
         meetupTitle: title,
         usageCount: emailLimit?.count || 0,
-        monthlyLimit: MONTHLY_LIMIT
+        monthlyLimit: MONTHLY_LIMIT,
+        startDate: startDate,
+        endDate: endDate,
+        useTimeRanges,
+        startTime: useTimeRanges ? startTime : undefined,
+        endTime: useTimeRanges ? endTime : undefined
       })
 
       console.log('Email content:', {

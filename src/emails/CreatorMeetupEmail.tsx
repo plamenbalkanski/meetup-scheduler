@@ -14,16 +14,35 @@ interface CreatorMeetupEmailProps {
   meetupTitle: string
   usageCount?: number
   monthlyLimit?: number
+  startDate: string
+  endDate: string
+  useTimeRanges: boolean
+  startTime?: string
+  endTime?: string
 }
 
 export function CreatorMeetupEmail({ 
   meetupUrl, 
   meetupTitle,
   usageCount = 0,
-  monthlyLimit = 3
+  monthlyLimit = 3,
+  startDate,
+  endDate,
+  useTimeRanges,
+  startTime,
+  endTime
 }: CreatorMeetupEmailProps) {
   const remainingMeetups = monthlyLimit - usageCount
   const showUpgradeMessage = usageCount > 0
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
 
   return (
     <Html>
@@ -34,8 +53,18 @@ export function CreatorMeetupEmail({
           <Heading style={h1}>Your Meetup is Ready! 🎉</Heading>
           
           <Text style={text}>
-            Great! Your meetup "{meetupTitle}" has been created successfully.
+            Great! Your meetup "<strong>{meetupTitle}</strong>" has been created successfully.
           </Text>
+
+          <div style={detailsBox}>
+            <Text style={detailsTitle}>Meetup Details:</Text>
+            <Text style={detailsText}>
+              📅 Dates: {formatDate(startDate)} to {formatDate(endDate)}
+              {useTimeRanges && startTime && endTime && (
+                <><br />⏰ Time Range: {startTime} to {endTime}</>
+              )}
+            </Text>
+          </div>
 
           <Text style={text}>
             Share this link with your participants to collect their availability:
@@ -49,9 +78,9 @@ export function CreatorMeetupEmail({
             <div style={upgradeBox}>
               <Text style={upgradeText}>
                 {remainingMeetups > 0 ? (
-                  `You have ${remainingMeetups} free meetup${remainingMeetups === 1 ? '' : 's'} remaining this month.`
+                  `⭐️ You have ${remainingMeetups} free meetup${remainingMeetups === 1 ? '' : 's'} remaining this month.`
                 ) : (
-                  "You've used all your free meetups for this month."
+                  "⭐️ You've used all your free meetups for this month."
                 )}
                 {' '}
                 <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/upgrade`} style={upgradeLink}>
@@ -135,4 +164,25 @@ const footer = {
   marginTop: '32px',
   textAlign: 'center' as const,
   fontStyle: 'italic',
+}
+
+const detailsBox = {
+  backgroundColor: '#f8fafc',
+  borderRadius: '8px',
+  padding: '16px',
+  marginBottom: '24px',
+}
+
+const detailsTitle = {
+  fontSize: '16px',
+  fontWeight: '600',
+  marginBottom: '8px',
+  color: '#111',
+}
+
+const detailsText = {
+  fontSize: '14px',
+  lineHeight: '1.6',
+  color: '#444',
+  margin: '0',
 } 

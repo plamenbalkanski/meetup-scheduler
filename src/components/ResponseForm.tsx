@@ -7,6 +7,7 @@ interface TimeSlot {
   id: string
   startTime: string
   endTime: string
+  displayTime?: string
 }
 
 interface MeetUp {
@@ -38,19 +39,15 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
 
   const formatSlot = (slot: TimeSlot) => {
     const date = new Date(slot.startTime)
-    if (!meetup?.useTimeRanges) {
-      return {
-        date: date.toLocaleDateString('en-US', { 
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric'
-        }),
-        time: 'Select Day'
-      }
-    }
     return {
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString([], { hour: 'numeric' })
+      date: date.toLocaleDateString('en-US', { 
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+      }),
+      time: slot.displayTime || (meetup?.useTimeRanges ? 
+        date.toLocaleTimeString([], { hour: 'numeric' }) : 
+        'Select Day')
     }
   }
 
