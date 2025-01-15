@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { FEATURES } from '@/lib/features'
 
 declare global {
   interface Window {
@@ -16,6 +17,14 @@ interface MapProps {
 export function Map({ address, className = "" }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   
+  if (!FEATURES.MAP_ENABLED) {
+    return (
+      <div className={`w-full p-4 bg-gray-100 rounded-lg ${className}`}>
+        <p className="text-gray-600 text-center">{address}</p>
+      </div>
+    )
+  }
+
   useEffect(() => {
     if (!mapRef.current) return
 
