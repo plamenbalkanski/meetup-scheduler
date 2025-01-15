@@ -33,11 +33,16 @@ if (!isValidUrl(APP_URL)) {
 const MONTHLY_LIMIT = 3;
 
 async function checkRateLimit(email: string, ip: string) {
+  // Bypass rate limit for balkanski.net emails
+  if (email.endsWith('@balkanski.net')) {
+    return { limited: false };
+  }
+
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
-  // Check email limit
+  // Check both email and IP limits
   const emailLimit = await prisma.rateLimit.findUnique({
     where: {
       identifier_type_month_year: {
@@ -62,7 +67,6 @@ async function checkRateLimit(email: string, ip: string) {
     };
   }
 
-  // Check IP limit
   const ipLimit = await prisma.rateLimit.findUnique({
     where: {
       identifier_type_month_year: {
@@ -91,11 +95,16 @@ async function checkRateLimit(email: string, ip: string) {
 }
 
 async function updateRateLimits(email: string, ip: string) {
+  // Don't update limits for balkanski.net emails
+  if (email.endsWith('@balkanski.net')) {
+    return;
+  }
+
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
-  // Update email rate limit
+  // Update email rate limit only
   await prisma.rateLimit.upsert({
     where: {
       identifier_type_month_year: {
@@ -117,27 +126,7 @@ async function updateRateLimits(email: string, ip: string) {
     },
   });
 
-  // Update IP rate limit
-  await prisma.rateLimit.upsert({
-    where: {
-      identifier_type_month_year: {
-        identifier: ip,
-        type: 'ip',
-        month: currentMonth,
-        year: currentYear,
-      },
-    },
-    update: {
-      count: { increment: 1 },
-    },
-    create: {
-      identifier: ip,
-      type: 'ip',
-      month: currentMonth,
-      year: currentYear,
-      count: 1,
-    },
-  });
+  // Remove IP rate limit update
 }
 
 export async function POST(request: NextRequest) {
