@@ -5,7 +5,7 @@ import { FEATURES } from '@/lib/features'
 
 declare global {
   interface Window {
-    google: typeof google
+    google: any
   }
 }
 
@@ -44,22 +44,25 @@ export function Map({ address, className = "" }: MapProps) {
     if (!mapRef.current) return
 
     const geocoder = new window.google.maps.Geocoder()
-    geocoder.geocode({ address }, (
-      results: google.maps.GeocoderResult[] | null,
-      status: google.maps.GeocoderStatus
-    ) => {
-      if (status === 'OK' && results?.[0]) {
-        const map = new window.google.maps.Map(mapRef.current!, {
-          center: results[0].geometry.location,
-          zoom: 15,
-        })
+    geocoder.geocode(
+      { address },
+      (
+        results: google.maps.GeocoderResult[] | null,
+        status: google.maps.GeocoderStatus
+      ) => {
+        if (status === 'OK' && results?.[0]) {
+          const map = new window.google.maps.Map(mapRef.current!, {
+            center: results[0].geometry.location,
+            zoom: 15,
+          })
 
-        new window.google.maps.Marker({
-          map,
-          position: results[0].geometry.location,
-        })
+          new window.google.maps.Marker({
+            map,
+            position: results[0].geometry.location,
+          })
+        }
       }
-    })
+    )
   }
 
   return (
