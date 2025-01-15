@@ -49,4 +49,15 @@ model RateLimit {
 
   @@unique([identifier, type, month, year])
   @@index([identifier, type, month, year])
+}
+
+model UpgradeAnalytics {
+  id        String   @id @default(cuid())
+  type      String   // 'PAGE_VIEW' or 'INTEREST'
+  email     String?
+  ip        String
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([createdAt])
 } 
