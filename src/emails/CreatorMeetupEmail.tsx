@@ -33,7 +33,7 @@ export function CreatorMeetupEmail({
   endTime
 }: CreatorMeetupEmailProps) {
   const remainingMeetups = monthlyLimit - usageCount
-  const showUpgradeMessage = usageCount > 0
+  const showUpgradeMessage = true
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString('en-US', {
@@ -78,14 +78,20 @@ export function CreatorMeetupEmail({
             <div style={upgradeBox}>
               <Text style={upgradeText}>
                 {remainingMeetups > 0 ? (
-                  `⭐️ You have ${remainingMeetups} free meetup${remainingMeetups === 1 ? '' : 's'} remaining this month.`
+                  <>
+                    ⭐️ You have {remainingMeetups} free meetup{remainingMeetups === 1 ? '' : 's'} remaining this month.{' '}
+                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/upgrade`} style={upgradeLink}>
+                      Upgrade to Pro for unlimited meetups!
+                    </Link>
+                  </>
                 ) : (
-                  "⭐️ You've used all your free meetups for this month."
+                  <>
+                    ⭐️ You've used all your free meetups for this month.{' '}
+                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/upgrade`} style={upgradeLink}>
+                      Upgrade to Pro for unlimited meetups!
+                    </Link>
+                  </>
                 )}
-                {' '}
-                <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/upgrade`} style={upgradeLink}>
-                  Upgrade to Pro for unlimited meetups!
-                </Link>
               </Text>
             </div>
           )}
