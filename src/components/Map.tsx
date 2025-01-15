@@ -2,11 +2,31 @@
 
 import { useEffect, useRef } from 'react'
 import { FEATURES } from '@/lib/features'
-import type { GeocoderResult, GeocoderStatus } from '@types/google.maps'
 
 declare global {
   interface Window {
-    google: any
+    google: {
+      maps: {
+        Geocoder: new () => {
+          geocode: (
+            request: { address: string },
+            callback: (
+              results: Array<{
+                geometry: {
+                  location: { lat: () => number; lng: () => number }
+                }
+              }> | null,
+              status: string
+            ) => void
+          ) => void
+        }
+        Map: new (
+          element: HTMLElement,
+          options: { center: any; zoom: number }
+        ) => any
+        Marker: new (options: { map: any; position: any }) => any
+      }
+    }
   }
 }
 
@@ -47,10 +67,7 @@ export function Map({ address, className = "" }: MapProps) {
     const geocoder = new window.google.maps.Geocoder()
     geocoder.geocode(
       { address },
-      (
-        results: GeocoderResult[] | null,
-        status: GeocoderStatus
-      ) => {
+      (results, status) => {
         if (status === 'OK' && results?.[0]) {
           const map = new window.google.maps.Map(mapRef.current!, {
             center: results[0].geometry.location,
