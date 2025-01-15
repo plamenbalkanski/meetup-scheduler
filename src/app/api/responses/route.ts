@@ -42,4 +42,50 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const meetup = await prisma.meetUp.findUnique({
+      where: { id: params.id },
+      include: {
+        timeSlots: {
+          orderBy: {
+            startTime: 'asc'
+          }
+        }
+      }
+    })
+
+    if (!meetup) {
+      return NextResponse.json(
+        { error: 'Meetup not found' },
+        { status: 404 }
+      )
+    }
+
+    // Format the time slots before sending
+    const formattedMeetup = {
+      ...meetup,
+      timeSlots: meetup.timeSlots.map(slot => ({
+        ...slot,
+        startTime: slot.startTime.toISOString(),
+        endTime: slot.endTime.toISOString(),
+        displayTime: meetup.useTimeRanges ? 
+          slot.startTime.toLocaleTimeString([], { hour: 'numeric' }) :
+          'Select Day'
+      }))
+    }
+
+    return NextResponse.json(formattedMeetup)
+  } catch (error) {
+    console.error('Failed to fetch meetup:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch meetup' },
+      { status: 500 }
+    )
+  }
 } 
