@@ -209,6 +209,22 @@ export async function POST(request: NextRequest) {
     const meetupUrl = `${APP_URL}/meetup/${meetup.id}`;
 
     try {
+      // Get current usage count
+      const currentDate = new Date()
+      const currentMonth = currentDate.getMonth() + 1
+      const currentYear = currentDate.getFullYear()
+      
+      const emailLimit = await prisma.rateLimit.findUnique({
+        where: {
+          identifier_type_month_year: {
+            identifier: email,
+            type: 'email',
+            month: currentMonth,
+            year: currentYear,
+          },
+        },
+      })
+
       // Send email to creator using the new template
       await resend.emails.send({
         from: FROM_EMAIL,
@@ -216,7 +232,9 @@ export async function POST(request: NextRequest) {
         subject: `Your Meetup: ${title}`,
         html: render(CreatorMeetupEmail({
           meetupUrl,
-          meetupTitle: title
+          meetupTitle: title,
+          usageCount: emailLimit?.count || 0,
+          monthlyLimit: MONTHLY_LIMIT
         }))
       });
       console.log('Email sent successfully');
