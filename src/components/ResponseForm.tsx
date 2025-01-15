@@ -45,9 +45,7 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
         month: 'long',
         day: 'numeric'
       }),
-      time: slot.displayTime || (meetup?.useTimeRanges ? 
-        date.toLocaleTimeString([], { hour: 'numeric' }) : 
-        'Select Day')
+      time: slot.displayTime || 'Select Day'
     }
   }
 

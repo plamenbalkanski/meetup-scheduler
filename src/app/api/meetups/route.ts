@@ -223,7 +223,8 @@ export async function POST(request: NextRequest) {
         endDate: endDate,
         useTimeRanges,
         startTime: useTimeRanges ? startTime : undefined,
-        endTime: useTimeRanges ? endTime : undefined
+        endTime: useTimeRanges ? endTime : undefined,
+        appUrl: APP_URL
       })
 
       console.log('Email content:', {

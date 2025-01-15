@@ -19,6 +19,7 @@ interface CreatorMeetupEmailProps {
   useTimeRanges: boolean
   startTime?: string
   endTime?: string
+  appUrl: string
 }
 
 export function CreatorMeetupEmail({ 
@@ -30,7 +31,8 @@ export function CreatorMeetupEmail({
   endDate,
   useTimeRanges,
   startTime,
-  endTime
+  endTime,
+  appUrl
 }: CreatorMeetupEmailProps) {
   const remainingMeetups = monthlyLimit - usageCount
   const showUpgradeMessage = true
@@ -80,14 +82,14 @@ export function CreatorMeetupEmail({
                 {remainingMeetups > 0 ? (
                   <>
                     ⭐️ You have {remainingMeetups} free meetup{remainingMeetups === 1 ? '' : 's'} remaining this month.{' '}
-                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/upgrade`} style={upgradeLink}>
+                    <Link href={`${appUrl}/upgrade`} style={upgradeLink}>
                       Upgrade to Pro for unlimited meetups!
                     </Link>
                   </>
                 ) : (
                   <>
                     ⭐️ You've used all your free meetups for this month.{' '}
-                    <Link href={`${process.env.NEXT_PUBLIC_APP_URL}/upgrade`} style={upgradeLink}>
+                    <Link href={`${appUrl}/upgrade`} style={upgradeLink}>
                       Upgrade to Pro for unlimited meetups!
                     </Link>
                   </>
