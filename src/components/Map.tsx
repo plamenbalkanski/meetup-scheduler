@@ -2,6 +2,12 @@
 
 import { useEffect, useRef } from 'react'
 
+declare global {
+  interface Window {
+    google: typeof google
+  }
+}
+
 interface MapProps {
   address: string
   className?: string
@@ -28,15 +34,18 @@ export function Map({ address, className = "" }: MapProps) {
   const initMap = () => {
     if (!mapRef.current) return
 
-    const geocoder = new google.maps.Geocoder()
-    geocoder.geocode({ address }, (results, status) => {
+    const geocoder = new window.google.maps.Geocoder()
+    geocoder.geocode({ address }, (
+      results: google.maps.GeocoderResult[] | null,
+      status: google.maps.GeocoderStatus
+    ) => {
       if (status === 'OK' && results?.[0]) {
-        const map = new google.maps.Map(mapRef.current!, {
+        const map = new window.google.maps.Map(mapRef.current!, {
           center: results[0].geometry.location,
           zoom: 15,
         })
 
-        new google.maps.Marker({
+        new window.google.maps.Marker({
           map,
           position: results[0].geometry.location,
         })
