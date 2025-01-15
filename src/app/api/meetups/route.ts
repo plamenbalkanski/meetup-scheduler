@@ -224,7 +224,13 @@ export async function POST(request: NextRequest) {
           meetupTitle: title,
           usageCount: emailLimit?.count || 0,
           monthlyLimit: MONTHLY_LIMIT
-        })
+        }),
+        html: render(CreatorMeetupEmail({
+          meetupUrl,
+          meetupTitle: title,
+          usageCount: emailLimit?.count || 0,
+          monthlyLimit: MONTHLY_LIMIT
+        }))
       });
       console.log('Email sent successfully');
     } catch (emailError) {

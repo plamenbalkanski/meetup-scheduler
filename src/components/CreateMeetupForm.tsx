@@ -46,7 +46,6 @@ export function CreateMeetupForm() {
       })
 
       const data = await response.json()
-      console.log('Response:', { status: response.status, data })
       
       if (!response.ok) {
         if (response.status === 429 && data.upgradeInfo) {
@@ -57,8 +56,9 @@ export function CreateMeetupForm() {
         throw new Error(data.error || 'Failed to create meetup')
       }
       
-      router.push(`/meetup/${data.id}`)
       toast.success('Meetup created! Check your email for the details.')
+      
+      window.location.href = `/meetup/${data.id}`
     } catch (error: any) {
       toast.error(error.message || 'Failed to create meetup')
       console.error('Error:', error)
