@@ -23,6 +23,7 @@ export function CreateMeetupForm() {
   const [useTimeRanges, setUseTimeRanges] = useState(true)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [upgradeInfo, setUpgradeInfo] = useState<any>(null)
+  const [address, setAddress] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,6 +37,7 @@ export function CreateMeetupForm() {
         body: JSON.stringify({
           title,
           description,
+          address,
           creatorEmail,
           startDate: dateRange.from,
           endDate: dateRange.to,
@@ -98,6 +100,21 @@ export function CreateMeetupForm() {
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             rows={3}
             placeholder="Add a description for your meetup"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="address" className="block text-sm font-medium">
+            Location
+            <span className="text-gray-500 text-xs ml-1">(optional)</span>
+          </label>
+          <input
+            type="text"
+            id="address"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            placeholder="Enter meetup location"
           />
         </div>
 
