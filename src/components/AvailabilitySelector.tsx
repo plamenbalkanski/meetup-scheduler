@@ -128,7 +128,10 @@ export default function AvailabilitySelector({ meetup }: Props) {
                       : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                 >
-                  {format(new Date(slot.startTime), 'h:mm a')}
+                  {slot.displayTime || (meetup.useTimeRanges 
+                    ? format(new Date(slot.startTime), 'h:mm a')
+                    : 'All Day'
+                  )}
                   {slot.responses.length > 0 && (
                     <span className="text-xs block">
                       {slot.responses.length} available
