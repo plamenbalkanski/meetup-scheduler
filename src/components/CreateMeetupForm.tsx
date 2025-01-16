@@ -33,7 +33,10 @@ export function CreateMeetupForm() {
     try {
       const response = await fetch('/api/meetups', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({
           title,
           description,
@@ -47,19 +50,13 @@ export function CreateMeetupForm() {
         }),
       })
 
-      const data = await response.json()
-      
       if (!response.ok) {
-        if (response.status === 429 && data.upgradeInfo) {
-          setUpgradeInfo(data)
-          setShowUpgradeModal(true)
-          return
-        }
-        throw new Error(data.error || 'Failed to create meetup')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create meetup')
       }
-      
+
+      const data = await response.json()
       toast.success('Meetup created! Check your email for the details.')
-      
       window.location.href = `/meetup/${data.id}`
     } catch (error: any) {
       toast.error(error.message || 'Failed to create meetup')

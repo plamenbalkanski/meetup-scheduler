@@ -1,56 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(request: NextRequest) {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest) {
   try {
-    const startTime = performance.now();
-    const data = await request.json();
-    
-    console.log(`Request received after ${performance.now() - startTime}ms`);
-    
-    // Process the response data
-    const { meetupId, name, selectedTimeSlots } = data;
-    
-    if (!meetupId || !name || !selectedTimeSlots) {
+    // Get meetup ID from URL
+    const { searchParams } = new URL(request.url);
+    const meetupId = searchParams.get('id');
+
+    if (!meetupId) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Meetup ID is required' },
         { status: 400 }
       );
     }
 
-    // Create the response in the database
-    const newResponse = await prisma.response.create({
-      data: {
-        meetUpId: meetupId,
-        name: name,
-        timeSlots: {
-          connect: selectedTimeSlots.map((id: string) => ({ id }))
-        }
-      }
-    });
-    
-    console.log(`Response processed in ${performance.now() - startTime}ms`);
-    return NextResponse.json(newResponse);
-  } catch (error: any) {
-    console.error('Detailed error:', {
-      message: error?.message || 'Unknown error',
-      stack: error?.stack,
-      time: new Date().toISOString()
-    });
-    return NextResponse.json(
-      { error: 'Failed to process response' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
     const meetup = await prisma.meetUp.findUnique({
-      where: { id: params.id },
+      where: { id: meetupId },
       include: {
         timeSlots: {
           orderBy: {
@@ -58,34 +25,41 @@ export async function GET(
           }
         }
       }
-    })
+    });
 
     if (!meetup) {
       return NextResponse.json(
         { error: 'Meetup not found' },
         { status: 404 }
-      )
+      );
     }
 
-    // Format the time slots before sending
+    // Format the time slots
     const formattedMeetup = {
       ...meetup,
-      timeSlots: meetup.timeSlots.map(slot => ({
-        ...slot,
-        startTime: slot.startTime.toISOString(),
-        endTime: slot.endTime.toISOString(),
-        displayTime: meetup.useTimeRanges ? 
-          slot.startTime.toLocaleTimeString([], { hour: 'numeric' }) :
-          'Select Day'
-      }))
-    }
+      timeSlots: meetup.timeSlots.map(slot => {
+        const slotDate = new Date(slot.startTime);
+        return {
+          ...slot,
+          startTime: slotDate.toISOString(),
+          endTime: new Date(slot.endTime).toISOString(),
+          displayTime: meetup.useTimeRanges 
+            ? slotDate.toLocaleTimeString([], { 
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true 
+              })
+            : 'All Day'
+        };
+      })
+    };
 
-    return NextResponse.json(formattedMeetup)
+    return NextResponse.json(formattedMeetup);
   } catch (error) {
-    console.error('Failed to fetch meetup:', error)
+    console.error('API error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch meetup' },
+      { error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 } 
