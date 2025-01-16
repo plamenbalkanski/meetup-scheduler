@@ -34,7 +34,7 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
     const fetchMeetup = async () => {
       try {
         console.log('Fetching meetup:', meetupId)
-        const response = await fetch(`/api/responses?id=${meetupId}`, {
+        const response = await fetch(`/api/meetups/${meetupId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -53,7 +53,11 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
         }
         
         const data = await response.json()
-        console.log('Meetup data:', data)
+        console.log('Meetup data:', {
+          id: data.id,
+          hasAddress: Boolean(data.address),
+          address: data.address
+        })
         setMeetup(data)
       } catch (error) {
         console.error('Fetch error:', error)
