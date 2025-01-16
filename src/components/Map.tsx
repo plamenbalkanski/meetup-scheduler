@@ -6,13 +6,10 @@ interface MapProps {
 }
 
 export function Map({ address, className = "" }: MapProps) {
-  console.log('Map component props:', { address, className })
-
   if (!address) {
-    console.log('Map: No address provided')
     return (
-      <div className="p-4 bg-yellow-50 rounded-lg">
-        <p className="text-yellow-600">No address provided</p>
+      <div className="p-4 bg-red-50 rounded-lg">
+        <p className="text-red-600">Debug: No address provided to Map component</p>
       </div>
     )
   }
@@ -20,7 +17,7 @@ export function Map({ address, className = "" }: MapProps) {
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
   
   return (
-    <div className={`w-full p-4 bg-gray-50 rounded-lg ${className}`}>
+    <div className={`w-full p-4 bg-gray-50 rounded-lg border-2 border-blue-200 ${className}`}>
       <a 
         href={googleMapsUrl}
         target="_blank"
