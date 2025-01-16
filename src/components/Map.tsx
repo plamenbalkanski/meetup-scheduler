@@ -3,7 +3,34 @@
 import { useEffect, useRef, useState } from 'react'
 import { FEATURES } from '@/lib/features'
 
-// Move script loading to a separate function
+// Add back the type definitions
+declare global {
+  interface Window {
+    google: {
+      maps: {
+        Geocoder: new () => {
+          geocode: (
+            request: { address: string },
+            callback: (
+              results: Array<{
+                geometry: {
+                  location: { lat: () => number; lng: () => number }
+                }
+              }> | null,
+              status: string
+            ) => void
+          ) => void
+        }
+        Map: new (
+          element: HTMLElement,
+          options: { center: any; zoom: number }
+        ) => any
+        Marker: new (options: { map: any; position: any }) => any
+      }
+    }
+  }
+}
+
 const loadGoogleMapsScript = (callback: () => void) => {
   const existingScript = document.getElementById('google-maps-script')
   if (existingScript) {
@@ -26,7 +53,12 @@ const loadGoogleMapsScript = (callback: () => void) => {
   document.head.appendChild(script)
 }
 
-export function Map({ address, className = "" }: { address: string, className?: string }) {
+interface MapProps {
+  address: string
+  className?: string
+}
+
+export function Map({ address, className = "" }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
   
