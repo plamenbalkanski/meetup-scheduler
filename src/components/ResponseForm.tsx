@@ -30,10 +30,16 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
           },
         })
         
         if (!response.ok) {
+          const errorText = await response.text()
+          console.error('Response error:', {
+            status: response.status,
+            text: errorText
+          })
           throw new Error(`HTTP error! status: ${response.status}`)
         }
         
