@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       console.log('Sending email to:', creatorEmail)
       
       const email = await resend.emails.send({
-        from: 'Meetup Scheduler <noreply@meetup-scheduler.com>',
+        from: 'Meetup Scheduler <meetup@balkanski.net>',
         to: creatorEmail,
         subject: `Your meetup "${meetup.title}" has been created`,
         html: emailHtml
