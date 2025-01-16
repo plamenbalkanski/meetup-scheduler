@@ -3,30 +3,31 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
 import { toast } from 'react-hot-toast'
-import type { MeetUp, TimeSlot } from '@prisma/client'
+
+interface ResponseType {
+  name: string
+}
 
 interface TimeSlot {
   id: string
-  startTime: string
-  endTime: string
+  startTime: string | Date
+  endTime: string | Date
   displayTime?: string
+  responses: ResponseType[]
 }
 
 interface MeetUp {
   id: string
   title: string
-  description?: string
-  address?: string
+  description?: string | null
+  address?: string | null
   useTimeRanges: boolean
   timeSlots: TimeSlot[]
+  responses: any[]
 }
 
 interface Props {
-  meetup: MeetUp & {
-    timeSlots: (TimeSlot & {
-      responses: { name: string }[]
-    })[]
-  }
+  meetup: MeetUp
 }
 
 export default function AvailabilitySelector({ meetup }: Props) {

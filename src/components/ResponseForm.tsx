@@ -3,17 +3,25 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 
+interface ResponseType {
+  name: string
+}
+
 interface TimeSlot {
   id: string
-  startTime: string
-  endTime: string
+  startTime: string | Date
+  endTime: string | Date
   displayTime?: string
+  responses: ResponseType[]
 }
 
 interface MeetUp {
   id: string
   useTimeRanges: boolean
+  description?: string | null
+  address?: string | null
   timeSlots: TimeSlot[]
+  responses: any[]
 }
 
 export function ResponseForm({ meetupId }: { meetupId: string }) {
