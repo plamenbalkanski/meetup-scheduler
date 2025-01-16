@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    console.log('Meetup created:', meetup)
+    console.log('Meetup created with address:', meetup.address)
 
     // Send email
     try {

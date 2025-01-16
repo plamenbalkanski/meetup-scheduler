@@ -6,6 +6,7 @@ interface MapProps {
 }
 
 export function Map({ address, className = "" }: MapProps) {
+  console.log('Map component rendered with address:', address)
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
   
   return (
