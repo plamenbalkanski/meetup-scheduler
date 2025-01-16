@@ -45,7 +45,7 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
         month: 'long',
         day: 'numeric'
       }),
-      time: slot.displayTime || 'Select Day'
+      time: slot.displayTime || 'All Day'
     }
   }
 
