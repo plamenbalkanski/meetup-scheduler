@@ -26,17 +26,29 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
     const fetchMeetup = async () => {
       try {
         console.log('Fetching meetup:', meetupId)
-        const response = await fetch(`/api/meetups/${meetupId}`)
+        const response = await fetch(`/api/meetups/${meetupId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
         const data = await response.json()
         console.log('Meetup data:', data)
-        if (!response.ok) throw new Error(data.error)
         setMeetup(data)
       } catch (error) {
+        console.error('Fetch error:', error)
         toast.error('Failed to load meetup details')
-        console.error('Error:', error)
       }
     }
-    fetchMeetup()
+
+    if (meetupId) {
+      fetchMeetup()
+    }
   }, [meetupId])
 
   const formatSlot = (slot: TimeSlot) => {
