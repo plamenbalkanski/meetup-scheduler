@@ -32,24 +32,38 @@ declare global {
 }
 
 const loadGoogleMapsScript = (callback: () => void) => {
-  const existingScript = document.getElementById('google-maps-script')
-  if (existingScript) {
+  // Check if script is already loaded
+  if (window.google?.maps) {
     callback()
     return
   }
 
+  // Check if script is already being loaded
+  const existingScript = document.getElementById('google-maps-script')
+  if (existingScript) {
+    existingScript.addEventListener('load', callback)
+    return
+  }
+
+  // Create new script element
   const script = document.createElement('script')
   script.id = 'google-maps-script'
   script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
   script.async = true
   script.defer = true
+  
+  // Add CORS attributes
   script.crossOrigin = "anonymous"
+  script.referrerPolicy = "no-referrer"
   
-  script.onload = callback
-  script.onerror = () => {
+  // Add event listeners
+  script.addEventListener('load', callback)
+  script.addEventListener('error', () => {
     console.error('Failed to load Google Maps script')
-  }
+    document.head.removeChild(script)
+  })
   
+  // Append script to head
   document.head.appendChild(script)
 }
 
@@ -61,39 +75,55 @@ interface MapProps {
 export function Map({ address, className = "" }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   
   useEffect(() => {
     if (!mapRef.current || !FEATURES.MAP_ENABLED) return
     if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
       setError('Google Maps API key is not configured')
+      setIsLoading(false)
       return
     }
 
-    loadGoogleMapsScript(() => {
-      const geocoder = new window.google.maps.Geocoder()
-      geocoder.geocode(
-        { address },
-        (results, status) => {
-          if (status === 'OK' && results?.[0]) {
-            const map = new window.google.maps.Map(mapRef.current!, {
-              center: results[0].geometry.location,
-              zoom: 15,
-            })
+    let isMounted = true
 
-            new window.google.maps.Marker({
-              map,
-              position: results[0].geometry.location,
-            })
+    loadGoogleMapsScript(() => {
+      if (!isMounted) return
+
+      try {
+        const geocoder = new window.google.maps.Geocoder()
+        geocoder.geocode(
+          { address },
+          (results, status) => {
+            if (!isMounted) return
+
+            if (status === 'OK' && results?.[0]) {
+              const map = new window.google.maps.Map(mapRef.current!, {
+                center: results[0].geometry.location,
+                zoom: 15,
+              })
+
+              new window.google.maps.Marker({
+                map,
+                position: results[0].geometry.location,
+              })
+            } else {
+              setError(`Failed to load map: ${status}`)
+            }
+            setIsLoading(false)
           }
+        )
+      } catch (err) {
+        if (isMounted) {
+          console.error('Map error:', err)
+          setError('Failed to initialize map')
+          setIsLoading(false)
         }
-      )
+      }
     })
 
     return () => {
-      const script = document.getElementById('google-maps-script')
-      if (script) {
-        script.remove()
-      }
+      isMounted = false
     }
   }, [address])
 
@@ -109,6 +139,14 @@ export function Map({ address, className = "" }: MapProps) {
     return (
       <div className={`w-full p-4 bg-red-50 rounded-lg ${className}`}>
         <p className="text-red-600 text-center">{error}</p>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className={`w-full h-64 flex items-center justify-center bg-gray-50 rounded-lg ${className}`}>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>
     )
   }
