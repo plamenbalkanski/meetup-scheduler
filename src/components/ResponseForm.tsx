@@ -26,7 +26,7 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
     const fetchMeetup = async () => {
       try {
         console.log('Fetching meetup:', meetupId)
-        const response = await fetch(`/api/meetups/${meetupId}`, {
+        const response = await fetch(`/api/responses/${meetupId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -38,7 +38,8 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
           const errorText = await response.text()
           console.error('Response error:', {
             status: response.status,
-            text: errorText
+            text: errorText,
+            meetupId
           })
           throw new Error(`HTTP error! status: ${response.status}`)
         }
