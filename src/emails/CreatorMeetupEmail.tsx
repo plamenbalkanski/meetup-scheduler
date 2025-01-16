@@ -15,17 +15,7 @@ interface CreatorMeetupEmailProps {
 }
 
 export function CreatorMeetupEmail({ id, title }: CreatorMeetupEmailProps) {
-  const remainingMeetups = monthlyLimit - usageCount
-  const showUpgradeMessage = true
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    })
-  }
+  const meetupUrl = `https://meetup-scheduler.onrender.com/meetup/${id}`
 
   return (
     <Html>
@@ -39,16 +29,6 @@ export function CreatorMeetupEmail({ id, title }: CreatorMeetupEmailProps) {
             Great! Your meetup "<strong>{title}</strong>" has been created successfully.
           </Text>
 
-          <div style={detailsBox}>
-            <Text style={detailsTitle}>Meetup Details:</Text>
-            <Text style={detailsText}>
-              📅 Dates: {formatDate(startDate)} to {formatDate(endDate)}
-              {useTimeRanges && startTime && endTime && (
-                <><br />⏰ Time Range: {startTime} to {endTime}</>
-              )}
-            </Text>
-          </div>
-
           <Text style={text}>
             Share this link with your participants to collect their availability:
           </Text>
@@ -56,28 +36,6 @@ export function CreatorMeetupEmail({ id, title }: CreatorMeetupEmailProps) {
           <Link href={meetupUrl} style={link}>
             {meetupUrl}
           </Link>
-
-          {showUpgradeMessage && (
-            <div style={upgradeBox}>
-              <Text style={upgradeText}>
-                {remainingMeetups > 0 ? (
-                  <>
-                    ⭐️ You have {remainingMeetups} free meetup{remainingMeetups === 1 ? '' : 's'} remaining this month.{' '}
-                    <Link href={`${appUrl}/upgrade`} style={upgradeLink}>
-                      Upgrade to Pro for unlimited meetups!
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    ⭐️ You've used all your free meetups for this month.{' '}
-                    <Link href={`${appUrl}/upgrade`} style={upgradeLink}>
-                      Upgrade to Pro for unlimited meetups!
-                    </Link>
-                  </>
-                )}
-              </Text>
-            </div>
-          )}
 
           <Text style={footer}>
             Need help? Reply to this email and we'll be happy to assist you.
@@ -126,52 +84,10 @@ const link = {
   marginBottom: '16px',
 }
 
-const upgradeBox = {
-  marginTop: '32px',
-  padding: '16px',
-  backgroundColor: '#f8fafc',
-  borderRadius: '8px',
-  borderLeft: '4px solid #2563eb',
-}
-
-const upgradeText = {
-  color: '#444',
-  fontSize: '14px',
-  lineHeight: '1.5',
-  margin: '0',
-}
-
-const upgradeLink = {
-  color: '#2563eb',
-  fontWeight: '600',
-  textDecoration: 'underline',
-}
-
 const footer = {
   color: '#666',
   fontSize: '14px',
   marginTop: '32px',
   textAlign: 'center' as const,
   fontStyle: 'italic',
-}
-
-const detailsBox = {
-  backgroundColor: '#f8fafc',
-  borderRadius: '8px',
-  padding: '16px',
-  marginBottom: '24px',
-}
-
-const detailsTitle = {
-  fontSize: '16px',
-  fontWeight: '600',
-  marginBottom: '8px',
-  color: '#111',
-}
-
-const detailsText = {
-  fontSize: '14px',
-  lineHeight: '1.6',
-  color: '#444',
-  margin: '0',
 } 
