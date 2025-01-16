@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FEATURES } from '@/lib/features'
 
 declare global {
@@ -37,6 +37,7 @@ interface MapProps {
 
 export function Map({ address, className = "" }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null)
+  const [error, setError] = useState<string | null>(null)
   
   if (!FEATURES.MAP_ENABLED) {
     return (
@@ -48,12 +49,17 @@ export function Map({ address, className = "" }: MapProps) {
 
   useEffect(() => {
     if (!mapRef.current) return
+    if (!process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
+      setError('Google Maps API key is not configured')
+      return
+    }
 
     // Load Google Maps script
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
     script.async = true
     script.onload = initMap
+    script.onerror = () => setError('Failed to load Google Maps')
     document.head.appendChild(script)
 
     return () => {
