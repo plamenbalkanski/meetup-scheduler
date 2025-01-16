@@ -59,7 +59,13 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
   }, [meetupId])
 
   const formatSlot = (slot: TimeSlot) => {
-    console.log('Formatting slot:', slot)
+    console.log('Raw slot data:', {
+      id: slot.id,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      displayTime: slot.displayTime
+    })
+
     const date = new Date(slot.startTime)
     const formatted = {
       date: date.toLocaleDateString('en-US', { 
@@ -69,6 +75,7 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
       }),
       time: slot.displayTime || 'All Day'
     }
+
     console.log('Formatted slot:', formatted)
     return formatted
   }

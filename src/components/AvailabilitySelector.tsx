@@ -5,6 +5,22 @@ import { format } from 'date-fns'
 import { toast } from 'react-hot-toast'
 import type { MeetUp, TimeSlot } from '@prisma/client'
 
+interface TimeSlot {
+  id: string
+  startTime: string
+  endTime: string
+  displayTime?: string
+}
+
+interface MeetUp {
+  id: string
+  title: string
+  description?: string
+  address?: string
+  useTimeRanges: boolean
+  timeSlots: TimeSlot[]
+}
+
 interface Props {
   meetup: MeetUp & {
     timeSlots: (TimeSlot & {
@@ -50,6 +66,18 @@ export default function AvailabilitySelector({ meetup }: Props) {
         ? prev.filter(id => id !== slotId)
         : [...prev, slotId]
     )
+  }
+
+  const formatSlot = (slot: TimeSlot) => {
+    const date = new Date(slot.startTime)
+    return {
+      date: date.toLocaleDateString('en-US', { 
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+      }),
+      time: slot.displayTime || 'All Day'
+    }
   }
 
   // Group time slots by date
