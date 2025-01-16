@@ -10,30 +10,11 @@ import {
 } from '@react-email/components'
 
 interface CreatorMeetupEmailProps {
-  meetupUrl: string
-  meetupTitle: string
-  usageCount?: number
-  monthlyLimit?: number
-  startDate: string
-  endDate: string
-  useTimeRanges: boolean
-  startTime?: string
-  endTime?: string
-  appUrl: string
+  id: string;
+  title: string;
 }
 
-export function CreatorMeetupEmail({ 
-  meetupUrl, 
-  meetupTitle,
-  usageCount = 0,
-  monthlyLimit = 3,
-  startDate,
-  endDate,
-  useTimeRanges,
-  startTime,
-  endTime,
-  appUrl
-}: CreatorMeetupEmailProps) {
+export function CreatorMeetupEmail({ id, title }: CreatorMeetupEmailProps) {
   const remainingMeetups = monthlyLimit - usageCount
   const showUpgradeMessage = true
 
@@ -49,13 +30,13 @@ export function CreatorMeetupEmail({
   return (
     <Html>
       <Head />
-      <Preview>Your meetup "{meetupTitle}" has been created</Preview>
+      <Preview>Your meetup "{title}" has been created</Preview>
       <Body style={main}>
         <Container style={container}>
           <Heading style={h1}>Your Meetup is Ready! 🎉</Heading>
           
           <Text style={text}>
-            Great! Your meetup "<strong>{meetupTitle}</strong>" has been created successfully.
+            Great! Your meetup "<strong>{title}</strong>" has been created successfully.
           </Text>
 
           <div style={detailsBox}>

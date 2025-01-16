@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
     try {
       const emailHtml = render(
         CreatorMeetupEmail({
-          meetupId: meetup.id,
-          meetupTitle: meetup.title
+          id: meetup.id,
+          title: meetup.title
         })
       )
 
