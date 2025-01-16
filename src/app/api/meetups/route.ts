@@ -5,10 +5,22 @@ import { render } from '@react-email/render'
 import { CreatorMeetupEmail } from '@/emails/CreatorMeetupEmail'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 300 // 5 minutes timeout
 
 export async function POST(request: NextRequest) {
   try {
-    const data = await request.json()
+    // Add error handling for request parsing
+    let data
+    try {
+      data = await request.json()
+    } catch (e) {
+      console.error('Failed to parse request body:', e)
+      return NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      )
+    }
+
     console.log('Creating meetup with data:', data)
     
     // Validate required fields
@@ -28,7 +40,7 @@ export async function POST(request: NextRequest) {
         description,
         address,
         createdBy: creatorEmail,
-        useTimeRanges: useTimeRanges ?? true,
+        useTimeRanges: useTimeRanges ?? false,
         timeSlots: {
           create: generateTimeSlots(
             new Date(startDate),
@@ -66,7 +78,14 @@ export async function POST(request: NextRequest) {
       // Don't throw here, just log the error
     }
 
-    return NextResponse.json(meetup)
+    // Return success response
+    return NextResponse.json(meetup, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
   } catch (error) {
     console.error('Failed to create meetup:', error)
     return NextResponse.json(

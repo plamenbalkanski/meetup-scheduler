@@ -50,12 +50,20 @@ export function CreateMeetupForm() {
         }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create meetup')
+      let data
+      try {
+        const text = await response.text()
+        data = JSON.parse(text)
+        console.log('Response data:', data)
+      } catch (e) {
+        console.error('Failed to parse response:', e)
+        throw new Error('Invalid server response')
       }
 
-      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create meetup')
+      }
+
       toast.success('Meetup created! Check your email for the details.')
       window.location.href = `/meetup/${data.id}`
     } catch (error: any) {
