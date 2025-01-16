@@ -5,35 +5,25 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get meetup ID from URL and log it
     const { searchParams } = new URL(request.url)
-    const meetupId = searchParams.get('id')
-    console.log('API hit with meetupId:', meetupId)
-
-    if (!meetupId) {
-      console.log('No meetup ID provided')
-      return NextResponse.json(
-        { error: 'Meetup ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Log the query we're about to make
-    console.log('Querying database for meetup:', meetupId)
+    const id = searchParams.get('id')
     
+    console.log('GET /api/responses - Fetching meetup:', id)
+
     const meetup = await prisma.meetUp.findUnique({
-      where: { id: meetupId },
+      where: { id: id! },
       include: {
         timeSlots: {
-          orderBy: {
-            startTime: 'asc'
+          include: {
+            responses: true
           }
         }
       }
     })
 
-    console.log('Database response:', {
-      found: !!meetup,
+    console.log('GET /api/responses - Meetup data:', {
+      id: meetup?.id,
+      address: meetup?.address,
       timeSlots: meetup?.timeSlots?.length
     })
 
@@ -44,34 +34,11 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Format and return the meetup
-    const formattedMeetup = {
-      ...meetup,
-      timeSlots: meetup.timeSlots.map(slot => {
-        const slotDate = new Date(slot.startTime)
-        return {
-          ...slot,
-          startTime: slotDate.toISOString(),
-          endTime: new Date(slot.endTime).toISOString(),
-          displayTime: meetup.useTimeRanges 
-            ? slotDate.toLocaleTimeString([], { 
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true 
-              })
-            : 'All Day'
-        }
-      })
-    }
-
-    return NextResponse.json(formattedMeetup)
+    return NextResponse.json(meetup)
   } catch (error) {
-    console.error('API error:', error)
+    console.error('GET /api/responses - Error:', error)
     return NextResponse.json(
-      { 
-        error: 'Internal server error', 
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
+      { error: 'Failed to fetch meetup' },
       { status: 500 }
     )
   }
