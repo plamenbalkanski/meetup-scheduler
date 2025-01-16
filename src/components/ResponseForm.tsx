@@ -25,8 +25,10 @@ export function ResponseForm({ meetupId }: { meetupId: string }) {
   useEffect(() => {
     const fetchMeetup = async () => {
       try {
+        console.log('Fetching meetup:', meetupId)
         const response = await fetch(`/api/meetups/${meetupId}`)
         const data = await response.json()
+        console.log('Meetup data:', data)
         if (!response.ok) throw new Error(data.error)
         setMeetup(data)
       } catch (error) {
