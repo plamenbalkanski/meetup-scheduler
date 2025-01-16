@@ -6,12 +6,17 @@ interface MapProps {
 }
 
 export function Map({ address, className = "" }: MapProps) {
+  console.log('Map component props:', { address, className })
+
   if (!address) {
     console.log('Map: No address provided')
-    return null
+    return (
+      <div className="p-4 bg-yellow-50 rounded-lg">
+        <p className="text-yellow-600">No address provided</p>
+      </div>
+    )
   }
 
-  console.log('Map: Rendering with address:', address)
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
   
   return (
@@ -42,7 +47,7 @@ export function Map({ address, className = "" }: MapProps) {
             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
           />
         </svg>
-        <span>{address}</span>
+        <span className="underline">{address}</span>
       </a>
     </div>
   )
