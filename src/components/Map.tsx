@@ -54,16 +54,19 @@ export function Map({ address, className = "" }: MapProps) {
       return
     }
 
-    // Load Google Maps script
+    // Create script with nonce and crossorigin attributes
     const script = document.createElement('script')
     script.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`
     script.async = true
+    script.crossOrigin = "anonymous"
     script.onload = initMap
     script.onerror = () => setError('Failed to load Google Maps')
     document.head.appendChild(script)
 
     return () => {
-      document.head.removeChild(script)
+      if (script.parentNode) {
+        script.parentNode.removeChild(script)
+      }
     }
   }, [address])
 

@@ -9,6 +9,7 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
+    console.log('Creating meetup with data:', data)
     
     // Validate required fields
     const { title, description, address, creatorEmail, startDate, endDate, useTimeRanges, startTime, endTime } = data
@@ -39,9 +40,33 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Return the created meetup
-    return NextResponse.json(meetup)
+    console.log('Meetup created:', meetup)
 
+    // Send email
+    try {
+      const emailHtml = render(
+        CreatorMeetupEmail({
+          meetupId: meetup.id,
+          meetupTitle: meetup.title
+        })
+      )
+
+      console.log('Sending email to:', creatorEmail)
+      
+      const email = await resend.emails.send({
+        from: 'Meetup Scheduler <noreply@meetup-scheduler.com>',
+        to: creatorEmail,
+        subject: `Your meetup "${meetup.title}" has been created`,
+        html: emailHtml
+      })
+
+      console.log('Email sent:', email)
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError)
+      // Don't throw here, just log the error
+    }
+
+    return NextResponse.json(meetup)
   } catch (error) {
     console.error('Failed to create meetup:', error)
     return NextResponse.json(
