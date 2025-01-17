@@ -38,36 +38,8 @@ export default async function MeetupPage({ params }: { params: { id: string } })
         )}
       </div>
 
-      {/* Location Section */}
-      <div className="mb-8 border-4 border-blue-500 rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Location</h2>
-        {meetup.address && (
-          <a 
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(meetup.address)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 p-4 bg-blue-50 border-2 border-blue-400 rounded-lg text-blue-600 hover:bg-blue-100"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5"
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="underline">{meetup.address}</span>
-          </a>
-        )}
-      </div>
-
       {/* Share and Results */}
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-2 mb-8">
         <div>
           <h2 className="text-xl font-semibold mb-4">Share</h2>
           <ShareMeetup meetupId={meetup.id} />
@@ -81,8 +53,36 @@ export default async function MeetupPage({ params }: { params: { id: string } })
         </div>
       </div>
 
+      {/* Location Section - More subtle */}
+      {meetup.address && (
+        <div className="mb-6">
+          <h2 className="text-lg font-medium mb-3">Location</h2>
+          <a 
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(meetup.address)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              className="h-4 w-4"
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span className="text-sm">{meetup.address}</span>
+          </a>
+        </div>
+      )}
+
       {/* Availability Section */}
-      <div className="mt-8">
+      <div>
         <h2 className="text-xl font-semibold mb-4">Select Your Availability</h2>
         <AvailabilitySelector meetup={meetup} />
       </div>
