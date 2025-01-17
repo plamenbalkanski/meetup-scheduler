@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isFeatureEnabled } from '@/lib/features'
 
-const TEST_EMAIL = 'plamen@balkanski.net'
+const TEST_EMAIL = process.env.TEST_EMAIL || 'plamen@balkanski.net'
 const MONTHLY_LIMIT = 3
 
 export async function POST(request: NextRequest) {
