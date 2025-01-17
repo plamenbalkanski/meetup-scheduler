@@ -15,7 +15,8 @@ export default async function MeetupPage({ params }: { params: { id: string } })
         include: {
           responses: true
         }
-      }
+      },
+      responses: true
     }
   })
 
