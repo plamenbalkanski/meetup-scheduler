@@ -9,6 +9,8 @@ import type { DateRange } from 'react-day-picker'
 import { DayPicker } from 'react-day-picker'
 import { Switch } from "@/components/ui/switch"
 import { Modal } from './ui/Modal'
+import { Dialog } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 export function CreateMeetupForm() {
   const router = useRouter()
@@ -61,6 +63,10 @@ export function CreateMeetupForm() {
       }
 
       if (!response.ok) {
+        if (response.status === 429 && data.showUpgradeModal) {
+          setShowUpgradeModal(true)
+          return
+        }
         throw new Error(data.error || 'Failed to create meetup')
       }
 
@@ -201,47 +207,30 @@ export function CreateMeetupForm() {
         </button>
       </form>
 
-      <Modal 
-        isOpen={showUpgradeModal} 
-        onClose={() => setShowUpgradeModal(false)}
+      <Dialog
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
       >
-        <div className="text-center">
-          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-          
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
-            {upgradeInfo?.error}
-          </h3>
-          
-          <p className="text-sm text-gray-500 mb-4">
-            You've reached the limit of {upgradeInfo?.upgradeInfo.currentLimit} meetups per month on the free plan. 
-            Upgrade to Pro for unlimited meetups!
-          </p>
-
-          <div className="mt-4 flex justify-end space-x-3">
-            <button
-              type="button"
+        <div className="p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Upgrade to Pro</h2>
+          <p>You've reached the daily limit for creating meetups. Upgrade to Pro for unlimited meetups!</p>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="outline"
               onClick={() => setShowUpgradeModal(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
             >
               Cancel
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
               onClick={() => {
-                setShowUpgradeModal(false)
-                router.push(upgradeInfo?.upgradeInfo.upgradeUrl)
+                window.location.href = '/upgrade'
               }}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
             >
-              Upgrade to Pro
-            </button>
+              Upgrade Now
+            </Button>
           </div>
         </div>
-      </Modal>
+      </Dialog>
     </>
   )
 } 

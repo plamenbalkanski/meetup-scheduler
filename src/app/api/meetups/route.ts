@@ -15,26 +15,26 @@ export async function POST(request: NextRequest) {
     const month = today.getMonth() + 1
     const year = today.getFullYear()
 
-    // Skip rate limit for test email
-    if (email !== TEST_EMAIL) {
-      const rateLimitCount = await prisma.rateLimit.count({
-        where: {
-          OR: [
-            { identifier: email, type: 'email' },
-            { identifier: ip, type: 'ip' }
-          ],
-          month,
-          year,
-        }
-      })
-
-      // If user has reached daily limit and doesn't have unlimited feature
-      if (rateLimitCount >= DAILY_LIMIT && !isFeatureEnabled('UNLIMITED_MEETUPS')) {
-        return NextResponse.json(
-          { error: 'Daily limit reached. Please upgrade for unlimited meetups.' },
-          { status: 429 }
-        )
+    const rateLimitCount = await prisma.rateLimit.count({
+      where: {
+        OR: [
+          { identifier: email, type: 'email' },
+          { identifier: ip, type: 'ip' }
+        ],
+        month,
+        year,
       }
+    })
+
+    // Check rate limit unless it's the test email
+    if (rateLimitCount >= DAILY_LIMIT && !isFeatureEnabled('UNLIMITED_MEETUPS') && email !== TEST_EMAIL) {
+      return NextResponse.json(
+        { 
+          error: 'Daily limit reached. Please upgrade for unlimited meetups.',
+          showUpgradeModal: true  // Add this flag for the frontend
+        },
+        { status: 429 }
+      )
     }
 
     // Create meetup
