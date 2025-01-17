@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { isFeatureEnabled } from '@/lib/features'
 
 const TEST_EMAIL = 'plamen@balkanski.net'
-const DAILY_LIMIT = 3 // Or whatever limit you want to set
+const DAILY_LIMIT = 3
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,17 +14,17 @@ export async function POST(request: NextRequest) {
     if (email !== TEST_EMAIL) {
       // Check rate limit
       const today = new Date()
-      today.setHours(0, 0, 0, 0)
+      const month = today.getMonth() + 1
+      const year = today.getFullYear()
 
       const rateLimitCount = await prisma.rateLimit.count({
         where: {
           OR: [
-            { createdBy: email },
-            { ipAddress: ip }
+            { identifier: email, type: 'email' },
+            { identifier: ip, type: 'ip' }
           ],
-          createdAt: {
-            gte: today
-          }
+          month,
+          year,
         }
       })
 
@@ -50,9 +50,22 @@ export async function POST(request: NextRequest) {
     // Record rate limit usage (even for test email, for tracking)
     await prisma.rateLimit.create({
       data: {
-        createdBy: email,
-        ipAddress: ip,
-        meetUpId: meetup.id
+        identifier: email,
+        type: 'email',
+        count: 1,
+        month: today.getMonth() + 1,
+        year: today.getFullYear()
+      }
+    })
+
+    // Also record IP-based rate limit
+    await prisma.rateLimit.create({
+      data: {
+        identifier: ip,
+        type: 'ip',
+        count: 1,
+        month: today.getMonth() + 1,
+        year: today.getFullYear()
       }
     })
 
