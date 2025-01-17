@@ -78,82 +78,80 @@ export function CreateMeetupForm() {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-8 max-w-2xl mx-auto">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium">
-            Meetup Title <span className="text-red-500">*</span>
-            <span className="text-gray-500 text-xs ml-1">(required)</span>
+          <label htmlFor="title" className="block text-lg font-medium text-gray-900">
+            What's your meetup about?
           </label>
           <input
             type="text"
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-lg"
             required
-            placeholder="Enter meetup title"
+            placeholder="e.g., Team Planning Session, Project Review..."
           />
         </div>
 
         <div>
-          <label htmlFor="address" className="block text-sm font-medium">
-            Location
-            <span className="text-gray-500 text-xs ml-1">(optional)</span>
+          <label htmlFor="creatorEmail" className="block text-lg font-medium text-gray-900">
+            Your email
+          </label>
+          <p className="text-sm text-gray-500 mb-2">We'll send you a confirmation with the meetup link</p>
+          <input
+            type="email"
+            id="creatorEmail"
+            value={creatorEmail}
+            onChange={(e) => setCreatorEmail(e.target.value)}
+            className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            required
+            placeholder="you@example.com"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="address" className="block text-lg font-medium text-gray-900">
+            Location <span className="text-sm font-normal text-gray-500">(optional)</span>
           </label>
           <input
             type="text"
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter meetup location"
+            className="mt-2 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="e.g., Conference Room A, or Coffee Shop address"
           />
         </div>
 
         <div>
-          <label htmlFor="creatorEmail" className="block text-sm font-medium">
-            Your Email <span className="text-red-500">*</span>
-            <span className="text-gray-500 text-xs ml-1">(required)</span>
-          </label>
-          <input
-            type="email"
-            id="creatorEmail"
-            value={creatorEmail}
-            onChange={(e) => setCreatorEmail(e.target.value)}
-            placeholder="We'll send you the meetup details"
-            className="mt-1 w-full px-3 py-2 border rounded-md"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Select Date Range <span className="text-red-500">*</span>
-            <span className="text-gray-500 text-xs ml-1">(required)</span>
+          <label className="block text-lg font-medium text-gray-900 mb-2">
+            When could this happen?
           </label>
           <DateRangePicker
             value={dateRange}
             onChange={setDateRange}
           />
           {!dateRange?.from && !dateRange?.to && (
-            <p className="mt-1 text-sm text-gray-500">Please select start and end dates</p>
+            <p className="mt-1 text-sm text-gray-500">Select possible dates for your meetup</p>
           )}
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="time-ranges"
-            checked={useTimeRanges}
-            onCheckedChange={setUseTimeRanges}
-          />
-          <label htmlFor="time-ranges" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-            Include specific time ranges
-          </label>
-        </div>
-
-        {useTimeRanges && (
-          <div className="grid gap-4 sm:grid-cols-2">
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <div className="flex items-center justify-between">
             <div>
+              <h3 className="text-lg font-medium text-gray-900">Specific time slots?</h3>
+              <p className="text-sm text-gray-500">Toggle to specify hours instead of full days</p>
+            </div>
+            <Switch
+              id="time-ranges"
+              checked={useTimeRanges}
+              onCheckedChange={setUseTimeRanges}
+            />
+          </div>
+
+          {useTimeRanges && (
+            <div className="mt-4">
               <TimeRangeSelector
                 startTime={startTime}
                 endTime={endTime}
@@ -162,17 +160,13 @@ export function CreateMeetupForm() {
                 onValidationError={setTimeError}
               />
             </div>
-          </div>
-        )}
-
-        <div className="text-sm text-gray-500 mt-4">
-          <p>Fields marked with <span className="text-red-500">*</span> are required</p>
+          )}
         </div>
 
         <button
           type="submit"
           disabled={loading || !title || !dateRange?.from || !dateRange?.to || !!timeError}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="w-full py-3 px-4 text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm disabled:opacity-50 transition-colors"
         >
           {loading ? (
             <span className="flex items-center justify-center">
@@ -180,7 +174,7 @@ export function CreateMeetupForm() {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Creating...
+              Creating your meetup...
             </span>
           ) : (
             'Create Meetup'
