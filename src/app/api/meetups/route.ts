@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { isFeatureEnabled } from '@/lib/features'
+import { resend } from '@/lib/resend'
+import { render } from '@react-email/render'
+import { CreatorMeetupEmail } from '@/emails/CreatorMeetupEmail'
 
 const TEST_EMAIL = process.env.TEST_EMAIL || 'plamen@balkanski.net'
 const MONTHLY_LIMIT = 3
@@ -77,6 +80,30 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    // Send confirmation email
+    try {
+      const emailHtml = render(
+        CreatorMeetupEmail({
+          id: meetup.id,
+          title: meetup.title
+        })
+      )
+
+      console.log('Sending email to:', email)
+      
+      const emailResponse = await resend.emails.send({
+        from: 'Meetup Scheduler <meetup@balkanski.net>',
+        to: email,
+        subject: `Your meetup "${meetup.title}" has been created`,
+        html: emailHtml
+      })
+
+      console.log('Email sent:', emailResponse)
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError)
+      // Don't throw here, just log the error
+    }
 
     // Record rate limit usage only for non-test emails
     if (email !== TEST_EMAIL) {
