@@ -55,9 +55,13 @@ export async function POST(request: NextRequest) {
     // Create meetup for all users
     const meetup = await prisma.meetUp.create({
       data: {
-        ...data,
+        title: data.title,
+        description: data.description,
+        address: data.address,
+        createdBy: email,
+        useTimeRanges: data.useTimeRanges,
         timeSlots: {
-          create: data.timeSlots
+          create: data.timeSlots || []
         }
       }
     })
