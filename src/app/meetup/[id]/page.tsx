@@ -38,13 +38,45 @@ export default async function MeetupPage({ params }: { params: { id: string } })
         )}
       </div>
 
-      {/* Share and Results */}
+      {/* Grid layout for Share, Location, and Results */}
       <div className="grid gap-8 md:grid-cols-2 mb-8">
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Share</h2>
-          <ShareMeetup meetupId={meetup.id} />
+        {/* Left column: Share and Location */}
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Share</h2>
+            <ShareMeetup meetupId={meetup.id} />
+          </div>
+
+          {/* Location Section - Always under Share */}
+          {meetup.address && (
+            <div>
+              <h2 className="text-lg font-medium mb-3">Location</h2>
+              <a 
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(meetup.address)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-sm">{meetup.address}</span>
+              </a>
+            </div>
+          )}
         </div>
         
+        {/* Right column: Results */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Results</h2>
           <Suspense fallback={<ResultsSkeleton />}>
@@ -52,34 +84,6 @@ export default async function MeetupPage({ params }: { params: { id: string } })
           </Suspense>
         </div>
       </div>
-
-      {/* Location Section - More subtle */}
-      {meetup.address && (
-        <div className="mb-6">
-          <h2 className="text-lg font-medium mb-3">Location</h2>
-          <a 
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(meetup.address)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-4 w-4"
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2"
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span className="text-sm">{meetup.address}</span>
-          </a>
-        </div>
-      )}
 
       {/* Availability Section */}
       <div>
