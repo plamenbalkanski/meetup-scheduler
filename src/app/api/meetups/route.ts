@@ -19,8 +19,8 @@ export async function POST(request: NextRequest) {
       const rateLimitCount = await prisma.rateLimit.count({
         where: {
           OR: [
-            { email },
-            { ip }
+            { createdBy: email },
+            { ipAddress: ip }
           ],
           createdAt: {
             gte: today
@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
     // Record rate limit usage (even for test email, for tracking)
     await prisma.rateLimit.create({
       data: {
-        email,
-        ip,
+        createdBy: email,
+        ipAddress: ip,
         meetUpId: meetup.id
       }
     })
