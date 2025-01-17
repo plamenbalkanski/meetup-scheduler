@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     // Only check rate limit for non-test emails
     if (email !== TEST_EMAIL) {
       console.log('Checking rate limit for non-test email')
-      const rateLimitCount = await prisma.rateLimit.count({
+      const rateLimitSum = await prisma.rateLimit.aggregate({
         where: {
           OR: [
             { identifier: email, type: 'email' },
@@ -33,12 +33,16 @@ export async function POST(request: NextRequest) {
           ],
           month,
           year,
+        },
+        _sum: {
+          count: true
         }
       })
 
-      console.log('Rate limit count:', rateLimitCount)
+      const totalCount = rateLimitSum._sum.count || 0
+      console.log('Total rate limit count:', totalCount)
 
-      if (rateLimitCount >= MONTHLY_LIMIT && !isFeatureEnabled('UNLIMITED_MEETUPS')) {
+      if (totalCount >= MONTHLY_LIMIT && !isFeatureEnabled('UNLIMITED_MEETUPS')) {
         console.log('Rate limit reached')
         return NextResponse.json(
           { 
