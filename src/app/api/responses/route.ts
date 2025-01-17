@@ -2,16 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     
-    console.log('GET /api/responses - Fetching meetup:', id)
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Missing meetup ID' },
+        { status: 400 }
+      )
+    }
 
     const meetup = await prisma.meetUp.findUnique({
-      where: { id: id! },
+      where: { id },
       include: {
         timeSlots: {
           include: {
@@ -20,12 +26,6 @@ export async function GET(request: NextRequest) {
         },
         responses: true
       }
-    })
-
-    console.log('GET /api/responses - Meetup data:', {
-      id: meetup?.id,
-      address: meetup?.address,
-      timeSlots: meetup?.timeSlots?.length
     })
 
     if (!meetup) {
