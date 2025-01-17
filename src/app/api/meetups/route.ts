@@ -10,13 +10,13 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     const { email, ip } = data
 
+    // Get current date info
+    const today = new Date()
+    const month = today.getMonth() + 1
+    const year = today.getFullYear()
+
     // Skip rate limit for test email
     if (email !== TEST_EMAIL) {
-      // Check rate limit
-      const today = new Date()
-      const month = today.getMonth() + 1
-      const year = today.getFullYear()
-
       const rateLimitCount = await prisma.rateLimit.count({
         where: {
           OR: [
@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
         identifier: email,
         type: 'email',
         count: 1,
-        month: today.getMonth() + 1,
-        year: today.getFullYear()
+        month,
+        year
       }
     })
 
@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
         identifier: ip,
         type: 'ip',
         count: 1,
-        month: today.getMonth() + 1,
-        year: today.getFullYear()
+        month,
+        year
       }
     })
 
