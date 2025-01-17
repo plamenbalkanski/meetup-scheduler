@@ -8,7 +8,8 @@ const MONTHLY_LIMIT = 3
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json()
-    const { email, ip } = data
+    const email = data.creatorEmail
+    const ip = request.headers.get('x-forwarded-for') || 'unknown'
 
     // Debug logging
     console.log('Received email:', email)
