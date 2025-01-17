@@ -52,6 +52,14 @@ export async function POST(request: NextRequest) {
       console.log('Skipping rate limit for test email')
     }
 
+    // Generate time slots
+    const timeSlots = generateTimeSlots(
+      new Date(data.startDate),
+      new Date(data.endDate),
+      data.useTimeRanges ? data.startTime : undefined,
+      data.useTimeRanges ? data.endTime : undefined
+    )
+
     // Create meetup for all users
     const meetup = await prisma.meetUp.create({
       data: {
@@ -61,15 +69,29 @@ export async function POST(request: NextRequest) {
         createdBy: email,
         useTimeRanges: data.useTimeRanges,
         timeSlots: {
-          create: data.timeSlots || []
+          create: timeSlots
         }
       }
     })
 
     // Record rate limit usage only for non-test emails
     if (email !== TEST_EMAIL) {
-      await prisma.rateLimit.create({
-        data: {
+      // Update or create email rate limit
+      await prisma.rateLimit.upsert({
+        where: {
+          identifier_type_month_year: {
+            identifier: email,
+            type: 'email',
+            month,
+            year
+          }
+        },
+        update: {
+          count: {
+            increment: 1
+          }
+        },
+        create: {
           identifier: email,
           type: 'email',
           count: 1,
@@ -78,8 +100,22 @@ export async function POST(request: NextRequest) {
         }
       })
 
-      await prisma.rateLimit.create({
-        data: {
+      // Update or create IP rate limit
+      await prisma.rateLimit.upsert({
+        where: {
+          identifier_type_month_year: {
+            identifier: ip,
+            type: 'ip',
+            month,
+            year
+          }
+        },
+        update: {
+          count: {
+            increment: 1
+          }
+        },
+        create: {
           identifier: ip,
           type: 'ip',
           count: 1,
@@ -97,4 +133,40 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+function generateTimeSlots(startDate: Date, endDate: Date, startTime?: string, endTime?: string) {
+  const slots = []
+  const currentDate = new Date(startDate)
+  
+  // Make sure we're working with clean dates (no time component for comparison)
+  const endDateClean = new Date(endDate)
+  endDateClean.setHours(23, 59, 59, 999)
+  
+  while (currentDate <= endDateClean) {
+    if (startTime && endTime) {
+      // Time slots for specific hours
+      const [startHour] = startTime.split(':').map(Number)
+      const [endHour] = endTime.split(':').map(Number)
+      
+      for (let hour = startHour; hour < endHour; hour++) {
+        slots.push({
+          startTime: new Date(new Date(currentDate).setHours(hour, 0, 0)),
+          endTime: new Date(new Date(currentDate).setHours(hour + 1, 0, 0))
+        })
+      }
+    } else {
+      // Full day slots
+      const slotDate = new Date(currentDate)
+      slots.push({
+        startTime: new Date(slotDate.setHours(0, 0, 0, 0)),
+        endTime: new Date(slotDate.setHours(23, 59, 59, 999))
+      })
+    }
+    
+    // Move to next day
+    currentDate.setDate(currentDate.getDate() + 1)
+  }
+  
+  return slots
 } 
