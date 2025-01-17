@@ -13,7 +13,6 @@ import { Modal } from './ui/Modal'
 export function CreateMeetupForm() {
   const router = useRouter()
   const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
   const [creatorEmail, setCreatorEmail] = useState('')
   const [dateRange, setDateRange] = useState<DateRange | undefined>()
   const [startTime, setStartTime] = useState('09:00')
@@ -39,7 +38,6 @@ export function CreateMeetupForm() {
         },
         body: JSON.stringify({
           title,
-          description,
           address,
           creatorEmail,
           startDate: dateRange.from,
@@ -94,21 +92,6 @@ export function CreateMeetupForm() {
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             required
             placeholder="Enter meetup title"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium">
-            Description
-            <span className="text-gray-500 text-xs ml-1">(optional)</span>
-          </label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            rows={3}
-            placeholder="Add a description for your meetup"
           />
         </div>
 
