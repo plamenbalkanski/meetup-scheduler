@@ -10,6 +10,12 @@ export async function POST(request: NextRequest) {
     const data = await request.json()
     const { email, ip } = data
 
+    // Debug logging
+    console.log('Received email:', email)
+    console.log('TEST_EMAIL from env:', process.env.TEST_EMAIL)
+    console.log('TEST_EMAIL const:', TEST_EMAIL)
+    console.log('Is test email?', email === TEST_EMAIL)
+
     // Get current date info
     const today = new Date()
     const month = today.getMonth() + 1
@@ -17,6 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Only check rate limit for non-test emails
     if (email !== TEST_EMAIL) {
+      console.log('Checking rate limit for non-test email')
       const rateLimitCount = await prisma.rateLimit.count({
         where: {
           OR: [
@@ -28,7 +35,10 @@ export async function POST(request: NextRequest) {
         }
       })
 
+      console.log('Rate limit count:', rateLimitCount)
+
       if (rateLimitCount >= MONTHLY_LIMIT && !isFeatureEnabled('UNLIMITED_MEETUPS')) {
+        console.log('Rate limit reached')
         return NextResponse.json(
           { 
             error: 'Monthly limit reached. Please upgrade for unlimited meetups.',
@@ -37,6 +47,8 @@ export async function POST(request: NextRequest) {
           { status: 429 }
         )
       }
+    } else {
+      console.log('Skipping rate limit for test email')
     }
 
     // Create meetup for all users
