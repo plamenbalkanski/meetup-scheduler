@@ -217,11 +217,11 @@ export function CreateMeetupForm() {
           </div>
           
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Daily Limit Reached
+            Monthly Limit Reached
           </h3>
           
           <p className="text-sm text-gray-500 mb-4">
-            You've reached the daily limit for creating meetups. Upgrade to Pro for unlimited meetups!
+            You've reached the monthly limit for creating meetups. Upgrade to Pro for unlimited meetups!
           </p>
 
           <div className="mt-4 flex justify-end space-x-3">

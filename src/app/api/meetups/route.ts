@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { isFeatureEnabled } from '@/lib/features'
 
 const TEST_EMAIL = 'plamen@balkanski.net'
-const DAILY_LIMIT = 3
+const MONTHLY_LIMIT = 3
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,6 +15,21 @@ export async function POST(request: NextRequest) {
     const month = today.getMonth() + 1
     const year = today.getFullYear()
 
+    // Skip rate limit check for test email
+    if (email === TEST_EMAIL) {
+      // Create meetup without checking limits
+      const meetup = await prisma.meetUp.create({
+        data: {
+          ...data,
+          timeSlots: {
+            create: data.timeSlots
+          }
+        }
+      })
+      return NextResponse.json(meetup)
+    }
+
+    // Check rate limit for non-test emails
     const rateLimitCount = await prisma.rateLimit.count({
       where: {
         OR: [
@@ -26,18 +41,17 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Check rate limit unless it's the test email
-    if (rateLimitCount >= DAILY_LIMIT && !isFeatureEnabled('UNLIMITED_MEETUPS') && email !== TEST_EMAIL) {
+    if (rateLimitCount >= MONTHLY_LIMIT && !isFeatureEnabled('UNLIMITED_MEETUPS')) {
       return NextResponse.json(
         { 
-          error: 'Daily limit reached. Please upgrade for unlimited meetups.',
-          showUpgradeModal: true  // Add this flag for the frontend
+          error: 'Monthly limit reached. Please upgrade for unlimited meetups.',
+          showUpgradeModal: true
         },
         { status: 429 }
       )
     }
 
-    // Create meetup
+    // Create meetup and record usage for non-test emails
     const meetup = await prisma.meetUp.create({
       data: {
         ...data,
@@ -47,7 +61,7 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Record rate limit usage (even for test email, for tracking)
+    // Record rate limit usage
     await prisma.rateLimit.create({
       data: {
         identifier: email,
@@ -58,7 +72,6 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // Also record IP-based rate limit
     await prisma.rateLimit.create({
       data: {
         identifier: ip,
